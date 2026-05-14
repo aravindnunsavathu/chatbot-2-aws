@@ -1,0 +1,5720 @@
+{
+    "areas": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "model_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The 3D model this area belongs to"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "is_preset",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "True if this area was created by the system as a default/preset"
+            },
+            {
+                "name": "is_public",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "True if this area is visible to all users with model access"
+            },
+            {
+                "name": "last_edited_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "last_edited_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "ordered_points",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Array of 3D coordinates defining the polygon boundary"
+            },
+            {
+                "name": "area_m",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Calculated area in square meters"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Polygon areas drawn within a 3D model to mark zones or regions on a structure. Defined by an ordered list of 3D points."
+    },
+    "asset_custom_field_values": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "asset_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The asset this value belongs to"
+            },
+            {
+                "name": "custom_field_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The custom field definition this value is for"
+            },
+            {
+                "name": "group_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Optional grouping identifier for multi-value fields"
+            },
+            {
+                "name": "unit",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Unit of measurement for numeric values (e.g. meters, kg)"
+            },
+            {
+                "name": "value_integer",
+                "type": "INTEGER",
+                "nullable": true
+            },
+            {
+                "name": "value_float",
+                "type": "DOUBLE PRECISION",
+                "nullable": true
+            },
+            {
+                "name": "value_string",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "value_boolean",
+                "type": "BOOLEAN",
+                "nullable": true
+            },
+            {
+                "name": "value_date",
+                "type": "DATE",
+                "nullable": true
+            },
+            {
+                "name": "value_string_list",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Array of string values for list-type fields"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "asset_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "assets",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "custom_field_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "asset_custom_fields",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Typed custom field values for assets. Supports multiple value types \u2014 only one value column is populated per row depending on the field's data type."
+    },
+    "asset_api_events": {
+        "columns": [
+            {
+                "name": "event_id",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "Unique event identifier"
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "organizations",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "List of organization IDs associated with this event"
+            },
+            {
+                "name": "asset_version_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "The asset version whose status changed"
+            },
+            {
+                "name": "old_packaging_status",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Packaging status before the event"
+            },
+            {
+                "name": "new_packaging_status",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Packaging status after the event"
+            },
+            {
+                "name": "old_processing_status",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Processing status before the event"
+            },
+            {
+                "name": "new_processing_status",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Processing status after the event"
+            },
+            {
+                "name": "processed",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this event has been consumed/processed"
+            },
+            {
+                "name": "read_by",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "List of systems or users that have read this event"
+            }
+        ],
+        "primary_keys": [
+            "event_id"
+        ],
+        "foreign_keys": [],
+        "description": "Audit log of API-triggered events recording asset version status changes (packaging and processing status transitions)."
+    },
+    "asset_custom_fields": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "data_type",
+                "type": "VARCHAR(12)",
+                "nullable": false,
+                "description": "The data type of the field (e.g. string, integer, float, boolean, date)"
+            },
+            {
+                "name": "input_type",
+                "type": "VARCHAR(14)",
+                "nullable": false,
+                "description": "UI input type (e.g. text, dropdown, checkbox)"
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": false
+            },
+            {
+                "name": "source_name",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Internal/API name for the field"
+            },
+            {
+                "name": "allowed_values",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Array of permitted values for dropdown/list fields"
+            },
+            {
+                "name": "company_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The company that defined this custom field"
+            },
+            {
+                "name": "is_editable",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "description": "Whether users can edit this field value"
+            },
+            {
+                "name": "is_hidden",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "description": "Whether this field is hidden from standard views"
+            },
+            {
+                "name": "in_table",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "description": "Whether this field appears in table/grid views"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "company_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "companies",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Definitions of custom metadata fields that companies can add to assets. Each company defines its own set of fields."
+    },
+    "asset_items": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "asset_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The asset this item belongs to"
+            },
+            {
+                "name": "physical_component_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The physical component catalog entry for this item"
+            },
+            {
+                "name": "parent_asset_item_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Parent item for hierarchical grouping (null if top-level)"
+            },
+            {
+                "name": "item_attributes",
+                "type": "JSONB",
+                "nullable": true,
+                "description": "JSON object of additional attributes for this item"
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR(255)",
+                "nullable": false
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "asset_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "assets",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "parent_asset_item_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "asset_items",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "physical_component_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "physical_components",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Hierarchical bill-of-materials entries within an asset, linking physical components to an asset. Supports nested parent-child relationships."
+    },
+    "asset_version_custom_field_values": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "asset_version_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The asset version this value belongs to"
+            },
+            {
+                "name": "custom_field_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The custom field definition this value is for"
+            },
+            {
+                "name": "group_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Optional grouping identifier for multi-value fields"
+            },
+            {
+                "name": "unit",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Unit of measurement for numeric values"
+            },
+            {
+                "name": "value_integer",
+                "type": "INTEGER",
+                "nullable": true
+            },
+            {
+                "name": "value_float",
+                "type": "DOUBLE PRECISION",
+                "nullable": true
+            },
+            {
+                "name": "value_string",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "value_boolean",
+                "type": "BOOLEAN",
+                "nullable": true
+            },
+            {
+                "name": "value_date",
+                "type": "DATE",
+                "nullable": true
+            },
+            {
+                "name": "value_string_list",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Array of string values for list-type fields"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "asset_version_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "asset_versions",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "custom_field_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "asset_version_custom_fields",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Typed custom field values for asset versions. Mirrors asset_custom_field_values but scoped to a specific asset version."
+    },
+    "asset_version_custom_fields": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "data_type",
+                "type": "VARCHAR(12)",
+                "nullable": false,
+                "description": "The data type of the field (e.g. string, integer, float, boolean, date)"
+            },
+            {
+                "name": "input_type",
+                "type": "VARCHAR(14)",
+                "nullable": false,
+                "description": "UI input type (e.g. text, dropdown, checkbox)"
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": false
+            },
+            {
+                "name": "source_name",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Internal/API name for the field"
+            },
+            {
+                "name": "allowed_values",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Array of permitted values for dropdown/list fields"
+            },
+            {
+                "name": "company_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The company that defined this custom field"
+            },
+            {
+                "name": "is_editable",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "description": "Whether users can edit this field value"
+            },
+            {
+                "name": "is_hidden",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "description": "Whether this field is hidden from standard views"
+            },
+            {
+                "name": "in_table",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "description": "Whether this field appears in table/grid views"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "company_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "companies",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Definitions of custom metadata fields for asset versions, defined per company."
+    },
+    "asset_version_notes": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database (DynamoDB)"
+            },
+            {
+                "name": "asset_version_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The asset version this note is attached to"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "text_content",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "The note text content"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "asset_version_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "asset_versions",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Text notes or comments added to an asset version by analysts or reviewers."
+    },
+    "bim_export_tasks": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "details",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "JSON object with export configuration and task details"
+            },
+            {
+                "name": "forge_work_item_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Autodesk Forge work item ID for BIM processing"
+            },
+            {
+                "name": "status_update_date",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp of the last status change"
+            },
+            {
+                "name": "task_status",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Current task status (e.g. pending, running, completed, failed)"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [],
+        "description": "Background processing tasks for exporting BIM (Building Information Model) data from a model."
+    },
+    "assets": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "display_id",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "Human-readable identifier for the asset"
+            },
+            {
+                "name": "asset_name",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Name of the asset"
+            },
+            {
+                "name": "asset_type",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Type of asset (e.g. tower, monopole, rooftop, small cell)"
+            },
+            {
+                "name": "latitude",
+                "type": "DOUBLE PRECISION",
+                "nullable": true,
+                "description": "Geographic latitude of the asset"
+            },
+            {
+                "name": "longitude",
+                "type": "DOUBLE PRECISION",
+                "nullable": true,
+                "description": "Geographic longitude of the asset"
+            },
+            {
+                "name": "structure_type",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Structural classification of the asset"
+            },
+            {
+                "name": "asset_label",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Short label/code for the asset"
+            },
+            {
+                "name": "asset_index",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Index used for ordering assets at a site"
+            },
+            {
+                "name": "structure_label",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Label for the structure type"
+            },
+            {
+                "name": "asset_base_land_elevation_m",
+                "type": "NUMERIC(10, 5)",
+                "nullable": true,
+                "description": "Elevation of the base of the asset above sea level in meters"
+            },
+            {
+                "name": "low_voltage_power_distance_m",
+                "type": "NUMERIC(10, 5)",
+                "nullable": true,
+                "description": "Distance to nearest low voltage power source in meters"
+            },
+            {
+                "name": "has_fiber_joint",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether the asset has a fiber joint connection"
+            },
+            {
+                "name": "nearest_fiber_joint_m",
+                "type": "NUMERIC(10, 5)",
+                "nullable": true,
+                "description": "Distance to the nearest fiber joint in meters"
+            },
+            {
+                "name": "site_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The site where this asset is located"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "site_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "sites",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Physical infrastructure assets (e.g. cell towers, monopoles, rooftops) located at a site. Each asset has a type, structural classification, and geographic coordinates."
+    },
+    "apertures": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": false
+            },
+            {
+                "name": "description",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "aperture_type",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Type of aperture (e.g. conduit, waveguide, cable port)"
+            },
+            {
+                "name": "images_url",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Array of image URLs showing this aperture"
+            },
+            {
+                "name": "owner_company_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Company that owns or manages this aperture definition"
+            },
+            {
+                "name": "height_m",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Height of the aperture in meters"
+            },
+            {
+                "name": "width_m",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Width of the aperture in meters"
+            },
+            {
+                "name": "depth_m",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Depth of the aperture in meters"
+            },
+            {
+                "name": "area_m",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Cross-sectional area in square meters"
+            },
+            {
+                "name": "volume_m",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Volume in cubic meters"
+            },
+            {
+                "name": "weight_kg",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Weight in kilograms"
+            },
+            {
+                "name": "wind_load_n",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Wind load in Newtons"
+            },
+            {
+                "name": "diameter_m",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Diameter in meters (for circular apertures)"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "owner_company_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "companies",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Physical openings or penetrations in a structure (e.g. cable ports, conduit entries, waveguide openings). Used to model and track routing paths through a structure."
+    },
+    "asset_version_company_access_rights": {
+        "columns": [
+            {
+                "name": "company_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The company being granted access"
+            },
+            {
+                "name": "asset_version_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The asset version being accessed"
+            },
+            {
+                "name": "granted_on",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when access was granted"
+            }
+        ],
+        "primary_keys": [
+            "company_id",
+            "asset_version_id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "asset_version_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "asset_versions",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "company_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "companies",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Access control table that defines which companies have rights to view a specific asset version."
+    },
+    "asset_versions": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "asset_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The asset this version is a survey of"
+            },
+            {
+                "name": "base_model_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The approved/published 3D model for this version"
+            },
+            {
+                "name": "draft_model_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The in-progress draft 3D model"
+            },
+            {
+                "name": "active",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this is the currently active version"
+            },
+            {
+                "name": "asset_owner",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Username of the asset owner"
+            },
+            {
+                "name": "capture_date",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Date the drone capture was performed"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "drone_height",
+                "type": "DOUBLE PRECISION",
+                "nullable": true,
+                "description": "Height the drone flew at during capture"
+            },
+            {
+                "name": "ground_space_flag",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether ground space data was captured"
+            },
+            {
+                "name": "height",
+                "type": "DOUBLE PRECISION",
+                "nullable": true,
+                "description": "Height of the structure in meters"
+            },
+            {
+                "name": "ident_flag",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Identification flag for the version"
+            },
+            {
+                "name": "last_analyst",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Username of the last analyst who worked on this version"
+            },
+            {
+                "name": "last_approved_by",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Username of the last approver"
+            },
+            {
+                "name": "last_assigned_by",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Username of the person who last assigned the work"
+            },
+            {
+                "name": "last_approved_date",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "last_assigned_date",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "last_edited_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "last_edited_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "operator",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "packaging_status",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Status of the data packaging process (e.g. pending, in_progress, complete)"
+            },
+            {
+                "name": "packaging_status_changed_date",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when packaging status last changed"
+            },
+            {
+                "name": "processing_status",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Status of the 3D model processing (e.g. pending, processing, complete, failed)"
+            },
+            {
+                "name": "processing_status_changed_date",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when processing status last changed"
+            },
+            {
+                "name": "project_name",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Project name this version belongs to"
+            },
+            {
+                "name": "rejection_description",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Detailed description if the version was rejected"
+            },
+            {
+                "name": "rejection_reason",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "High-level reason for rejection"
+            },
+            {
+                "name": "released",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this version has been released to the customer"
+            },
+            {
+                "name": "upload_path",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Storage path where raw capture data was uploaded"
+            },
+            {
+                "name": "vertical_space_flag",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether vertical space data was captured"
+            },
+            {
+                "name": "airspace_check",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Whether an airspace check was performed before capture"
+            },
+            {
+                "name": "capture_due_date",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Deadline for the capture to be completed"
+            },
+            {
+                "name": "capture_status",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Status of the capture workflow"
+            },
+            {
+                "name": "capture_status_changed_date",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when capture status last changed"
+            },
+            {
+                "name": "captured_by",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Username or company that performed the capture"
+            },
+            {
+                "name": "delivery_due_date",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Deadline for delivering the processed data"
+            },
+            {
+                "name": "dsp_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Drone Service Provider (DSP) company ID"
+            },
+            {
+                "name": "ntp_date",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Notice to Proceed date authorizing the capture"
+            },
+            {
+                "name": "price_to_capture",
+                "type": "NUMERIC(15, 6)",
+                "nullable": true,
+                "description": "Cost to capture this asset version"
+            },
+            {
+                "name": "price_to_customer",
+                "type": "NUMERIC(15, 6)",
+                "nullable": true,
+                "description": "Price charged to the customer"
+            },
+            {
+                "name": "rad_count",
+                "type": "INTEGER",
+                "nullable": true,
+                "description": "Number of radiating antenna elements"
+            },
+            {
+                "name": "is_public_to_group",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this version is visible to the company group"
+            },
+            {
+                "name": "synced_to_model_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Model this version has been synced to"
+            },
+            {
+                "name": "data_source",
+                "type": "VARCHAR(10)",
+                "nullable": true,
+                "description": "Source of the capture data (e.g. drone, manual)"
+            },
+            {
+                "name": "capture_type",
+                "type": "VARCHAR(7)",
+                "nullable": false,
+                "description": "Type of capture performed"
+            },
+            {
+                "name": "synced_to_asset_version_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Another asset version this has been synced with"
+            },
+            {
+                "name": "structure_height",
+                "type": "NUMERIC",
+                "nullable": true,
+                "description": "Height of the structure"
+            },
+            {
+                "name": "design_capacity_over_top",
+                "type": "NUMERIC",
+                "nullable": true,
+                "description": "Design capacity above the top of the structure"
+            },
+            {
+                "name": "structure_design_capacity",
+                "type": "NUMERIC",
+                "nullable": true,
+                "description": "Structural design load capacity"
+            },
+            {
+                "name": "structure_design_height",
+                "type": "NUMERIC",
+                "nullable": true,
+                "description": "Design height of the structure"
+            },
+            {
+                "name": "is_5x5_sop",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "description": "Whether this version follows the 5x5 standard operating procedure"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "asset_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "assets",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "base_model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "draft_model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "dsp_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "companies",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "synced_to_asset_version_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "asset_versions",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "synced_to_model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "A specific survey or inspection version of an asset, typically created from a drone capture. Tracks the full lifecycle including capture, 3D processing, packaging, and approval. Each asset can have multiple versions over time."
+    },
+    "collections": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "model_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The 3D model this collection belongs to"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "deleted_by",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Username of the user who deleted this collection"
+            },
+            {
+                "name": "deleted_on",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when the collection was soft-deleted"
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "is_deleted",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this collection has been soft-deleted"
+            },
+            {
+                "name": "is_preset",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this is a system-created default collection"
+            },
+            {
+                "name": "is_public",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this collection is visible to all users with model access"
+            },
+            {
+                "name": "tenant_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Tenant scoping for this collection"
+            },
+            {
+                "name": "parent_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Parent collection for nested hierarchy (null if top-level)"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "parent_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "collections",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "tenant_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "tenants",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Named groups of files within a model, used to organize related files together. Can be nested hierarchically via parent_id."
+    },
+    "bim_exports": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "model_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The 3D model that was exported"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "deleted_by",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Username of the user who deleted this export"
+            },
+            {
+                "name": "deleted_on",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when soft-deleted"
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "is_deleted",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this export record has been soft-deleted"
+            },
+            {
+                "name": "task_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The background processing task that generated this export"
+            },
+            {
+                "name": "task_status",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Current status of the export task"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "task_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "bim_export_tasks",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Records of BIM (Building Information Model) data exports generated from a 3D model."
+    },
+    "companies": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": false
+            },
+            {
+                "name": "aliases",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Array of alternative names or codes for this company"
+            },
+            {
+                "name": "is_capture_provider",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this company provides drone capture services (is a DSP)"
+            },
+            {
+                "name": "customer_data",
+                "type": "JSONB",
+                "nullable": true,
+                "description": "JSON object with additional customer-specific metadata"
+            },
+            {
+                "name": "restrictions",
+                "type": "JSON",
+                "nullable": true,
+                "description": "JSON object defining what data this company is restricted from accessing"
+            },
+            {
+                "name": "has_restriction_flag",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether any access restrictions are active for this company"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [],
+        "description": "Organizations registered on the platform, including asset owners, operators, and drone service providers (DSPs)."
+    },
+    "cad_tasks": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "autocad_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "External AutoCAD processing job identifier"
+            },
+            {
+                "name": "completed_on",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when the task completed"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": false
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": false
+            },
+            {
+                "name": "error_message",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "model_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The 3D model being converted"
+            },
+            {
+                "name": "task_status",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "Current task status (e.g. pending, running, completed, failed)"
+            },
+            {
+                "name": "report_content",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "JSON content of the conversion report"
+            },
+            {
+                "name": "file_format",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "Output CAD file format (e.g. dxf, dwg)"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Background tasks for converting 3D model data to CAD formats (e.g. AutoCAD DXF/DWG)."
+    },
+    "collection_items": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "collection_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The collection this item belongs to"
+            },
+            {
+                "name": "file_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The file included in the collection"
+            },
+            {
+                "name": "deleted_by",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Username of who removed this item"
+            },
+            {
+                "name": "deleted_on",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when soft-deleted"
+            },
+            {
+                "name": "is_deleted",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this item has been soft-deleted"
+            },
+            {
+                "name": "sort_index",
+                "type": "INTEGER",
+                "nullable": true,
+                "description": "Ordering index for display within the collection"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "collection_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "collections",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "file_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "files",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Files included within a collection, with ordering support."
+    },
+    "entity_tags": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "tag_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The tag definition being applied"
+            },
+            {
+                "name": "point_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The point this tag is applied to (if tagging a point)"
+            },
+            {
+                "name": "volume_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The volume this tag is applied to (if tagging a volume)"
+            },
+            {
+                "name": "measurement_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The measurement this tag is applied to"
+            },
+            {
+                "name": "vertical_segment_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The vertical segment this tag is applied to"
+            },
+            {
+                "name": "plane_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The plane this tag is applied to"
+            },
+            {
+                "name": "revision_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The revision this tag is applied to"
+            },
+            {
+                "name": "revision_item_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The revision item this tag is applied to"
+            },
+            {
+                "name": "tag_value",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "The value associated with this tag instance"
+            },
+            {
+                "name": "tag_data_type",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Data type of the tag value"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "measurement_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "measurements",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "plane_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "planes",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "point_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "points",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "revision_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "revisions",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "revision_item_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "revision_items",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "tag_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "tags",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "vertical_segment_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "vertical_segments",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "volume_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "volumes",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Associates tags with various entity types (points, volumes, measurements, planes, revision items) for categorization and labeling. Only one entity foreign key is populated per row."
+    },
+    "favorite_assets": {
+        "columns": [
+            {
+                "name": "asset_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The favorited asset"
+            },
+            {
+                "name": "username",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "The user who favorited it"
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when the favorite was added"
+            }
+        ],
+        "primary_keys": [
+            "asset_id",
+            "username"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "asset_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "assets",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Tracks which assets individual users have bookmarked as favorites for quick access."
+    },
+    "ground_spaces": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "model_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The 3D model this ground space belongs to"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "ground_plane_offset",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Vertical offset from the ground plane in meters"
+            },
+            {
+                "name": "is_preset",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this is a system-created default ground space"
+            },
+            {
+                "name": "is_public",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether visible to all users with model access"
+            },
+            {
+                "name": "last_edited_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "last_edited_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "points",
+                "type": "JSON",
+                "nullable": true,
+                "description": "Array of 3D points defining the outline"
+            },
+            {
+                "name": "polygons",
+                "type": "JSON",
+                "nullable": true,
+                "description": "Array of polygon definitions within this ground space"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Ground-level polygon regions within a 3D model, representing the footprint or base area around a structure."
+    },
+    "grants": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "asset_version_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The asset version access is granted to"
+            },
+            {
+                "name": "granting_company_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The company issuing the grant"
+            },
+            {
+                "name": "recipient_username",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "The specific user receiving access (null if granted to a company)"
+            },
+            {
+                "name": "recipient_company_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The company receiving access (null if granted to a user)"
+            },
+            {
+                "name": "grant_type",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Type of access granted (e.g. view, edit, admin)"
+            },
+            {
+                "name": "granted_on",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when the grant was created"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": [],
+        "description": "Access grants giving specific users or companies permission to view or interact with an asset version."
+    },
+    "image_tags": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "asset_version_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The asset version whose images are tagged"
+            },
+            {
+                "name": "asset_version_index",
+                "type": "INTEGER",
+                "nullable": true,
+                "description": "Index of the specific image within the asset version"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "deleted_by",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Username of who deleted this tag"
+            },
+            {
+                "name": "deleted_on",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when soft-deleted"
+            },
+            {
+                "name": "field_name",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Name of the field or attribute being tagged"
+            },
+            {
+                "name": "field_value",
+                "type": "INTEGER",
+                "nullable": true,
+                "description": "Value of the field at this position"
+            },
+            {
+                "name": "image_path",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Storage path to the image"
+            },
+            {
+                "name": "is_deleted",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this tag has been soft-deleted"
+            },
+            {
+                "name": "position",
+                "type": "JSON",
+                "nullable": true,
+                "description": "2D coordinates within the image where this tag is placed"
+            },
+            {
+                "name": "tag_type",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Type/category of this image tag"
+            },
+            {
+                "name": "text_content",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Optional text annotation content"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "asset_version_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "asset_versions",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Annotation tags applied to specific positions within images of an asset version, marking field values or features at image coordinates."
+    },
+    "matched_volumes": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "current_volume_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The volume in the current/newer asset version"
+            },
+            {
+                "name": "matched_to_volume_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The corresponding volume in the older asset version"
+            },
+            {
+                "name": "current_asset_version_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The newer asset version"
+            },
+            {
+                "name": "matched_to_asset_version_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The older asset version being compared to"
+            },
+            {
+                "name": "match_type",
+                "type": "VARCHAR(7)",
+                "nullable": false,
+                "description": "How the match was determined (e.g. automatic, manual)"
+            },
+            {
+                "name": "match_rating",
+                "type": "NUMERIC(8, 4)",
+                "nullable": true,
+                "description": "Confidence score for the match (0-1)"
+            },
+            {
+                "name": "confirmation_status",
+                "type": "VARCHAR(11)",
+                "nullable": false,
+                "description": "Whether the match has been confirmed by a user"
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": false
+            },
+            {
+                "name": "last_edited_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "last_edited_on",
+                "type": "TIMESTAMP",
+                "nullable": false
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "current_asset_version_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "asset_versions",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "current_volume_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "volumes",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "matched_to_asset_version_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "asset_versions",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "matched_to_volume_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "volumes",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Links physically equivalent volumes across different asset versions for change detection and comparison over time."
+    },
+    "models": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "ddb_parent_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy parent identifier"
+            },
+            {
+                "name": "asset_version_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The asset version this model was created for"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "is_deleted",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this model has been soft-deleted"
+            },
+            {
+                "name": "frust_size",
+                "type": "DOUBLE PRECISION",
+                "nullable": true,
+                "description": "Camera frustum size parameter for 3D rendering"
+            },
+            {
+                "name": "georef",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "JSON object containing georeferencing transformation data"
+            },
+            {
+                "name": "ground_plane_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Reference to the ground plane object in the model"
+            },
+            {
+                "name": "highest_appurtenance_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Reference to the topmost appurtenance volume"
+            },
+            {
+                "name": "object_production",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "JSON metadata about how 3D objects were produced"
+            },
+            {
+                "name": "radius",
+                "type": "DOUBLE PRECISION",
+                "nullable": true,
+                "description": "Bounding radius of the model in meters"
+            },
+            {
+                "name": "scale_ratio",
+                "type": "DOUBLE PRECISION",
+                "nullable": true,
+                "description": "Scale factor applied to the model"
+            },
+            {
+                "name": "site_3d_data",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "JSON object with site-level 3D spatial data"
+            },
+            {
+                "name": "srs",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Spatial Reference System (coordinate system) used for georeferencing"
+            },
+            {
+                "name": "top_steel_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Reference to the top steel structure point/volume"
+            },
+            {
+                "name": "parent_model_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Parent model for hierarchical model relationships"
+            },
+            {
+                "name": "slice_plane_1",
+                "type": "JSON",
+                "nullable": true,
+                "description": "First slicing plane definition for cross-section views"
+            },
+            {
+                "name": "slice_plane_2",
+                "type": "JSON",
+                "nullable": true,
+                "description": "Second slicing plane definition"
+            },
+            {
+                "name": "tiles",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "JSON metadata for 3D tile streaming configuration"
+            },
+            {
+                "name": "modeling_engine",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Software engine used to produce the 3D model"
+            },
+            {
+                "name": "synced_to_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Another model this model has been synced/aligned with"
+            },
+            {
+                "name": "engine",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Processing engine version"
+            },
+            {
+                "name": "roll_uncertainty",
+                "type": "DOUBLE PRECISION",
+                "nullable": true,
+                "description": "Uncertainty in roll angle measurement (degrees)"
+            },
+            {
+                "name": "downtilt_uncertainty",
+                "type": "DOUBLE PRECISION",
+                "nullable": true,
+                "description": "Uncertainty in downtilt angle measurement (degrees)"
+            },
+            {
+                "name": "azimuth_uncertainty",
+                "type": "DOUBLE PRECISION",
+                "nullable": true,
+                "description": "Uncertainty in azimuth measurement (degrees)"
+            },
+            {
+                "name": "scale_uncertainty",
+                "type": "DOUBLE PRECISION",
+                "nullable": true,
+                "description": "Uncertainty in scale factor"
+            },
+            {
+                "name": "autogeoref_method",
+                "type": "VARCHAR(3)",
+                "nullable": true,
+                "description": "Method used for automatic georeferencing"
+            },
+            {
+                "name": "georef_method",
+                "type": "VARCHAR(6)",
+                "nullable": true,
+                "description": "Final georeferencing method applied"
+            },
+            {
+                "name": "recapture_sync_status",
+                "type": "VARCHAR(10)",
+                "nullable": true,
+                "description": "Status of syncing with a recaptured model"
+            },
+            {
+                "name": "last_completed_date",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Date the model was last fully processed"
+            },
+            {
+                "name": "ground_level_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Reference to the ground level definition"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "parent_model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "synced_to_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "3D point cloud or mesh models generated from drone captures of an asset. The central entity that most 3D objects (volumes, areas, points, measurements) belong to. Contains georeferencing, scale, and spatial reference data."
+    },
+    "georef_tasks": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "model_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The model being georeferenced"
+            },
+            {
+                "name": "task_arn",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "AWS ARN of the background processing task"
+            },
+            {
+                "name": "task_status",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Current status of the georeferencing task"
+            },
+            {
+                "name": "task_token",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Token for resuming async task execution"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Background tasks for georeferencing a 3D model \u2014 aligning it to real-world geographic coordinates."
+    },
+    "files": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "model_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The 3D model this file is attached to"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "deleted_by",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Username of who deleted this file"
+            },
+            {
+                "name": "deleted_on",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when soft-deleted"
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "file_path",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Storage path to the file"
+            },
+            {
+                "name": "file_type",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "MIME type or file extension (e.g. image/jpeg, application/pdf)"
+            },
+            {
+                "name": "is_deleted",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this file has been soft-deleted"
+            },
+            {
+                "name": "is_preset",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this is a system-provided default file"
+            },
+            {
+                "name": "is_public",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this file is visible to all users with model access"
+            },
+            {
+                "name": "last_edited_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "last_edited_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Files (images, documents, PDFs, etc.) uploaded and attached to a 3D model for reference."
+    },
+    "paged_sites": {
+        "columns": [
+            {
+                "name": "s_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "Site ID"
+            },
+            {
+                "name": "s_site_name",
+                "type": "TEXT",
+                "nullable": true,
+                "description": "Site name"
+            },
+            {
+                "name": "s_display_id",
+                "type": "TEXT",
+                "nullable": true,
+                "description": "Site display identifier"
+            },
+            {
+                "name": "s_address_region",
+                "type": "TEXT",
+                "nullable": true,
+                "description": "Geographic region of the site"
+            },
+            {
+                "name": "s_longitude",
+                "type": "DOUBLE PRECISION",
+                "nullable": true,
+                "description": "Site longitude"
+            },
+            {
+                "name": "s_latitude",
+                "type": "DOUBLE PRECISION",
+                "nullable": true,
+                "description": "Site latitude"
+            },
+            {
+                "name": "s_address_state",
+                "type": "TEXT",
+                "nullable": true,
+                "description": "State/province of the site"
+            },
+            {
+                "name": "a_id",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Asset ID"
+            },
+            {
+                "name": "a_asset_type",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Type of the asset"
+            },
+            {
+                "name": "a_asset_label",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Asset label/code"
+            },
+            {
+                "name": "a_structure_type",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Structural classification of the asset"
+            },
+            {
+                "name": "av_packaging_status",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Asset version packaging status (internal)"
+            },
+            {
+                "name": "av_last_approved_by",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Last approver (internal)"
+            },
+            {
+                "name": "av_height",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Structure height (internal version)"
+            },
+            {
+                "name": "av_capture_date",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Capture date (internal version)"
+            },
+            {
+                "name": "av_asset_owner",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Asset owner (internal version)"
+            },
+            {
+                "name": "av_last_approved_date",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "av_project_name",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "av_last_analyst",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "av_base_model_id",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Base model ID (internal version)"
+            },
+            {
+                "name": "av_id",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Asset version ID (internal)"
+            },
+            {
+                "name": "av_company_rights",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Company access rights for internal version"
+            },
+            {
+                "name": "s_site_owner_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Company that owns this site"
+            },
+            {
+                "name": "s_address_street",
+                "type": "TEXT",
+                "nullable": true,
+                "description": "Street address of the site"
+            },
+            {
+                "name": "a_display_id",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Asset display identifier"
+            },
+            {
+                "name": "av_last_assigned_date",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "av_packaging_status_external",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Asset version packaging status (external/third-party version)"
+            },
+            {
+                "name": "av_last_approved_by_external",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "av_height_external",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "av_capture_date_external",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "av_asset_owner_external",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "av_last_approved_date_external",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "av_project_name_external",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "av_last_analyst_external",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "av_last_assigned_date_external",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "av_base_model_id_external",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "av_id_external",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Asset version ID (external)"
+            },
+            {
+                "name": "av_company_rights_external",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Company access rights for external version"
+            },
+            {
+                "name": "a_id_external",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Asset ID for external version"
+            },
+            {
+                "name": "a_asset_type_external",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "a_asset_label_external",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "a_display_id_external",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "a_structure_type_external",
+                "type": "ARRAY",
+                "nullable": true
+            },
+            {
+                "name": "av_active",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether the internal asset version is active"
+            },
+            {
+                "name": "av_released",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether the internal asset version is released"
+            },
+            {
+                "name": "av_active_external",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether the external asset version is active"
+            },
+            {
+                "name": "av_released_external",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether the external asset version is released"
+            }
+        ],
+        "primary_keys": [
+            "s_id"
+        ],
+        "foreign_keys": [],
+        "description": "Denormalized view combining site, asset, and asset version data for efficient paginated site listing and search. Contains both internal and external (third-party) parallel asset version fields. Not a raw table \u2014 used for site browsing queries."
+    },
+    "measurement_segments": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "measurement_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The measurement this segment belongs to"
+            },
+            {
+                "name": "endpoint_1",
+                "type": "JSON",
+                "nullable": true,
+                "description": "3D coordinates of the first endpoint"
+            },
+            {
+                "name": "endpoint_2",
+                "type": "JSON",
+                "nullable": true,
+                "description": "3D coordinates of the second endpoint"
+            },
+            {
+                "name": "is_dynamic",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this segment length updates dynamically"
+            },
+            {
+                "name": "segment_length",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Length of this segment in meters"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "measurement_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "measurements",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Individual line segments that make up a multi-point measurement, each defined by two 3D endpoints."
+    },
+    "measurements": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "model_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The 3D model this measurement belongs to"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "is_preset",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this is a system-created default measurement"
+            },
+            {
+                "name": "is_public",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether visible to all users with model access"
+            },
+            {
+                "name": "last_edited_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "last_edited_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "tenant_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Tenant scoping for this measurement"
+            },
+            {
+                "name": "has_level",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this measurement has a level/elevation reference"
+            },
+            {
+                "name": "parent_measurement_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Parent measurement for hierarchical grouping"
+            },
+            {
+                "name": "parent_group",
+                "type": "VARCHAR(15)",
+                "nullable": true,
+                "description": "Name of the parent group for organizational display"
+            },
+            {
+                "name": "measurement_type",
+                "type": "VARCHAR(50)",
+                "nullable": false,
+                "description": "Type of measurement (e.g. distance, perimeter, height, horizontal)"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "parent_measurement_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "measurements",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "tenant_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "tenants",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "parent_measurement_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "measurements",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Linear or distance measurements placed within a 3D model. Can be grouped hierarchically and support different measurement types."
+    },
+    "physical_component_models": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "physical_component_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The physical component catalog entry this model represents"
+            },
+            {
+                "name": "company_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The company that owns this 3D model"
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": false
+            },
+            {
+                "name": "format",
+                "type": "VARCHAR(8)",
+                "nullable": false,
+                "description": "File format of the 3D model (e.g. ifc, obj, fbx, glb)"
+            },
+            {
+                "name": "file_path",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "Storage path to the 3D model file"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": false
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "company_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "companies",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "physical_component_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "physical_components",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "3D model files (e.g. IFC, OBJ, FBX, GLB) representing a physical component, owned by a specific company."
+    },
+    "physical_component_overrides": {
+        "columns": [
+            {
+                "name": "physical_component_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The physical component being overridden"
+            },
+            {
+                "name": "company_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The company applying the override"
+            },
+            {
+                "name": "is_excluded",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this company has excluded this component from their catalog"
+            },
+            {
+                "name": "height_m",
+                "type": "NUMERIC(8, 4)",
+                "nullable": true,
+                "description": "Overridden height in meters"
+            },
+            {
+                "name": "width_m",
+                "type": "NUMERIC(8, 4)",
+                "nullable": true,
+                "description": "Overridden width in meters"
+            },
+            {
+                "name": "depth_m",
+                "type": "NUMERIC(8, 4)",
+                "nullable": true,
+                "description": "Overridden depth in meters"
+            },
+            {
+                "name": "diameter_m",
+                "type": "NUMERIC(8, 4)",
+                "nullable": true,
+                "description": "Overridden diameter in meters"
+            },
+            {
+                "name": "sail_area_m",
+                "type": "NUMERIC(8, 4)",
+                "nullable": true,
+                "description": "Overridden wind sail area in square meters"
+            },
+            {
+                "name": "weight_kg",
+                "type": "NUMERIC(8, 4)",
+                "nullable": true,
+                "description": "Overridden weight in kilograms"
+            },
+            {
+                "name": "component_description",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Overridden description text"
+            },
+            {
+                "name": "storage_service",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Storage service hosting the override files"
+            },
+            {
+                "name": "spec_sheets",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Array of URLs to specification/datasheet documents"
+            },
+            {
+                "name": "images",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Array of URLs to component images"
+            }
+        ],
+        "primary_keys": [
+            "physical_component_id",
+            "company_id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "company_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "companies",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "physical_component_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "physical_components",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Company-specific overrides for physical component specifications. Allows companies to customize dimensions, weight, and other properties for their catalog."
+    },
+    "physical_component_model_tasks": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "physical_component_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The physical component being processed"
+            },
+            {
+                "name": "company_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The company that owns this conversion task"
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "format",
+                "type": "VARCHAR(8)",
+                "nullable": false,
+                "description": "Target output file format"
+            },
+            {
+                "name": "input_file_path",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "Storage path of the input file"
+            },
+            {
+                "name": "output_file_path",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "Storage path of the processed output file"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": false
+            },
+            {
+                "name": "physical_component_model_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The resulting physical component model record"
+            },
+            {
+                "name": "status",
+                "type": "VARCHAR(28)",
+                "nullable": false,
+                "description": "Task status (e.g. pending, running, completed, failed)"
+            },
+            {
+                "name": "error_message",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Error details if the task failed"
+            },
+            {
+                "name": "command",
+                "type": "VARCHAR(18)",
+                "nullable": false,
+                "description": "Processing command or configuration used"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "company_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "companies",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "physical_component_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "physical_components",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "physical_component_model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "physical_component_models",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Background tasks for converting or processing physical component 3D model files into different formats."
+    },
+    "report_company_access_rights": {
+        "columns": [
+            {
+                "name": "company_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The company being granted access"
+            },
+            {
+                "name": "report_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The report being accessed"
+            },
+            {
+                "name": "granted_on",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when access was granted"
+            }
+        ],
+        "primary_keys": [
+            "company_id",
+            "report_id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "company_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "companies",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "report_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "reports",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Controls which companies have access to view a specific report."
+    },
+    "points": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "model_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The 3D model this point belongs to"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "is_preset",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this is a system-created default point"
+            },
+            {
+                "name": "is_public",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether visible to all users with model access"
+            },
+            {
+                "name": "last_edited_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "last_edited_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "position",
+                "type": "JSON",
+                "nullable": true,
+                "description": "3D coordinates (x, y, z) of this point in model space"
+            },
+            {
+                "name": "tenant_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Tenant scoping for this point"
+            },
+            {
+                "name": "parent_measurement_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Parent measurement this point belongs to"
+            },
+            {
+                "name": "parent_group",
+                "type": "VARCHAR(15)",
+                "nullable": true,
+                "description": "Display group name for organizational purposes"
+            },
+            {
+                "name": "has_level",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "description": "Whether this point has a level/elevation reference"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "parent_measurement_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "measurements",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "tenant_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "tenants",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Named reference points placed within a 3D model at a specific 3D position, used for annotations and measurements."
+    },
+    "physical_components": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "category",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "High-level category of the component (e.g. antenna, mount, cable, power)"
+            },
+            {
+                "name": "primary_type",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "Primary classification within the category"
+            },
+            {
+                "name": "secondary_type",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Secondary/sub classification"
+            },
+            {
+                "name": "is_parametric",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this component has adjustable parametric dimensions"
+            },
+            {
+                "name": "is_discontinued",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this component is no longer manufactured"
+            },
+            {
+                "name": "manufacturer",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "Name of the manufacturer"
+            },
+            {
+                "name": "model_identifier",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "Manufacturer model number or identifier"
+            },
+            {
+                "name": "family_identifier",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Product family identifier"
+            },
+            {
+                "name": "shape",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Physical shape of the component (e.g. rectangular, cylindrical)"
+            },
+            {
+                "name": "height_m",
+                "type": "NUMERIC(8, 4)",
+                "nullable": true,
+                "description": "Height in meters"
+            },
+            {
+                "name": "width_m",
+                "type": "NUMERIC(8, 4)",
+                "nullable": true,
+                "description": "Width in meters"
+            },
+            {
+                "name": "depth_m",
+                "type": "NUMERIC(8, 4)",
+                "nullable": true,
+                "description": "Depth in meters"
+            },
+            {
+                "name": "diameter_m",
+                "type": "NUMERIC(8, 4)",
+                "nullable": true,
+                "description": "Diameter in meters (for cylindrical components)"
+            },
+            {
+                "name": "sail_area_m",
+                "type": "NUMERIC(8, 4)",
+                "nullable": true,
+                "description": "Wind-exposed sail area in square meters"
+            },
+            {
+                "name": "weight_kg",
+                "type": "NUMERIC(8, 4)",
+                "nullable": true,
+                "description": "Weight in kilograms"
+            },
+            {
+                "name": "component_description",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Human-readable description of the component"
+            },
+            {
+                "name": "storage_service",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Storage service hosting spec sheets and images"
+            },
+            {
+                "name": "spec_sheets",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Array of URLs to specification/datasheet documents"
+            },
+            {
+                "name": "images",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Array of URLs to component images"
+            },
+            {
+                "name": "capacity",
+                "type": "NUMERIC(8, 4)",
+                "nullable": true,
+                "description": "Capacity specification (e.g. port count for a cable)"
+            },
+            {
+                "name": "capacity_units",
+                "type": "VARCHAR(255)",
+                "nullable": true,
+                "description": "Units for the capacity value"
+            },
+            {
+                "name": "size",
+                "type": "NUMERIC(8, 4)",
+                "nullable": true,
+                "description": "Size specification"
+            },
+            {
+                "name": "size_units",
+                "type": "VARCHAR(255)",
+                "nullable": true,
+                "description": "Units for the size value"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [],
+        "description": "Catalog of physical equipment and hardware components (antennas, mounts, brackets, cables, etc.) with manufacturer specs and dimensions. Used as a reference library for placing components in 3D models."
+    },
+    "physical_component_model_parameters": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "physical_component_model_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The 3D model this parameter belongs to"
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": false
+            },
+            {
+                "name": "parameter_type",
+                "type": "VARCHAR(7)",
+                "nullable": false,
+                "description": "Type of parameter (e.g. angle, length, boolean)"
+            },
+            {
+                "name": "parameter_unit",
+                "type": "VARCHAR(14)",
+                "nullable": true,
+                "description": "Unit of measurement for this parameter"
+            },
+            {
+                "name": "default_value",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Default value for this parameter"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "physical_component_model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "physical_component_models",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Parametric parameters defined for a physical component's 3D model (e.g. adjustable tilt angle, extension length). Each parameter can have a default value."
+    },
+    "report_items": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "report_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The report this item belongs to"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "deleted_by",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Username of who deleted this item"
+            },
+            {
+                "name": "deleted_on",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when soft-deleted"
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "file_path",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Storage path to this report item file"
+            },
+            {
+                "name": "file_type",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Type/format of this file"
+            },
+            {
+                "name": "is_deleted",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this item has been soft-deleted"
+            },
+            {
+                "name": "report_item_types",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Array of type classifications for this item"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "report_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "reports",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Individual files or deliverable items included within a report package."
+    },
+    "planes": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "model_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The 3D model this plane belongs to"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "is_preset",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this is a system-created default plane"
+            },
+            {
+                "name": "is_public",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether visible to all users with model access"
+            },
+            {
+                "name": "last_edited_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "last_edited_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "point_1",
+                "type": "JSON",
+                "nullable": true,
+                "description": "First 3D point defining the plane"
+            },
+            {
+                "name": "point_2",
+                "type": "JSON",
+                "nullable": true,
+                "description": "Second 3D point defining the plane"
+            },
+            {
+                "name": "point_3",
+                "type": "JSON",
+                "nullable": true,
+                "description": "Third 3D point defining the plane"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Reference planes within a 3D model, defined by three 3D points. Used as surfaces on which 2D sketches are drawn."
+    },
+    "reports": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "delivered_on",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when the report was delivered to the customer"
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "ordered_on",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when the report was ordered"
+            },
+            {
+                "name": "request_details",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "JSON object with details of what was requested"
+            },
+            {
+                "name": "requested_by_company",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Name of the company that requested the report"
+            },
+            {
+                "name": "requested_by_username",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Username of the person who requested the report"
+            },
+            {
+                "name": "total_asset_count",
+                "type": "INTEGER",
+                "nullable": true,
+                "description": "Total number of assets included in the report"
+            },
+            {
+                "name": "unique_asset_count",
+                "type": "INTEGER",
+                "nullable": true,
+                "description": "Number of unique assets (deduplicated) in the report"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [],
+        "description": "Inspection or analysis reports ordered by a company, compiled from files and delivered to customers."
+    },
+    "revisions": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "model_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The 3D model this revision is applied to"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "deleted_by",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Username of who deleted this revision"
+            },
+            {
+                "name": "deleted_on",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when soft-deleted"
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "is_deleted",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this revision has been soft-deleted"
+            },
+            {
+                "name": "is_preset",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this is a system-created default revision"
+            },
+            {
+                "name": "is_public",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether visible to all users with model access"
+            },
+            {
+                "name": "last_edited_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "last_edited_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "tenant_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Tenant this revision belongs to"
+            },
+            {
+                "name": "customer_data",
+                "type": "JSONB",
+                "nullable": true,
+                "description": "JSON object with customer-specific metadata"
+            },
+            {
+                "name": "revision_type",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Type of revision (e.g. design, as_built, proposed)"
+            },
+            {
+                "name": "creator_company_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Company that created this revision"
+            },
+            {
+                "name": "design_state",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Current state of the design (e.g. draft, submitted, approved)"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "creator_company_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "companies",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "tenant_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "tenants",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "A design revision layer applied on top of a 3D model, representing proposed or actual changes to the structure (e.g. adding new equipment). Revisions track the design state and can be scoped to a tenant."
+    },
+    "sites": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "display_id",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "Human-readable site identifier"
+            },
+            {
+                "name": "site_name",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Name of the site"
+            },
+            {
+                "name": "address_street",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Street address"
+            },
+            {
+                "name": "address_state",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "State or province"
+            },
+            {
+                "name": "address_region",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Geographic region"
+            },
+            {
+                "name": "address_zip",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Postal/ZIP code"
+            },
+            {
+                "name": "latitude",
+                "type": "DOUBLE PRECISION",
+                "nullable": true,
+                "description": "Geographic latitude"
+            },
+            {
+                "name": "longitude",
+                "type": "DOUBLE PRECISION",
+                "nullable": true,
+                "description": "Geographic longitude"
+            },
+            {
+                "name": "site_owner_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Company that owns this site"
+            },
+            {
+                "name": "site_controller",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Entity responsible for managing the site"
+            },
+            {
+                "name": "site_status",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Current operational status of the site"
+            },
+            {
+                "name": "has_backhaul",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether the site has backhaul connectivity"
+            },
+            {
+                "name": "acma_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Australian Communications and Media Authority registration ID"
+            },
+            {
+                "name": "rfnsa_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Radio Frequency National Site Archive identifier (Australia)"
+            },
+            {
+                "name": "landowner",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Name of the land owner"
+            },
+            {
+                "name": "integration_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "External system integration identifier"
+            },
+            {
+                "name": "terrain_category",
+                "type": "NUMERIC",
+                "nullable": true,
+                "description": "Terrain classification for wind load calculations"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "site_owner_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "companies",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Physical locations (e.g. cell tower sites) with geographic coordinates and address. A site can have multiple assets. Includes Australian regulatory identifiers (ACMA, RFNSA)."
+    },
+    "site_custom_fields": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "data_type",
+                "type": "VARCHAR(12)",
+                "nullable": false,
+                "description": "The data type of the field (e.g. string, integer, float, boolean, date)"
+            },
+            {
+                "name": "input_type",
+                "type": "VARCHAR(14)",
+                "nullable": false,
+                "description": "UI input type (e.g. text, dropdown, checkbox)"
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": false
+            },
+            {
+                "name": "source_name",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Internal/API name for the field"
+            },
+            {
+                "name": "allowed_values",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Array of permitted values for dropdown/list fields"
+            },
+            {
+                "name": "company_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The company that defined this custom field"
+            },
+            {
+                "name": "is_editable",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "description": "Whether users can edit this field value"
+            },
+            {
+                "name": "is_hidden",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "description": "Whether this field is hidden from standard views"
+            },
+            {
+                "name": "in_table",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "description": "Whether this field appears in table/grid views"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "company_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "companies",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Definitions of custom metadata fields that companies can add to sites."
+    },
+    "vertical_segments": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "model_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The 3D model this segment belongs to"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "is_preset",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this is a system-created default segment"
+            },
+            {
+                "name": "is_public",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether visible to all users with model access"
+            },
+            {
+                "name": "last_edited_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "last_edited_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "bottom_elevation",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Elevation of the bottom of this segment in model units"
+            },
+            {
+                "name": "top_elevation",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Elevation of the top of this segment in model units"
+            },
+            {
+                "name": "tenant_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Tenant scoping for this segment"
+            },
+            {
+                "name": "parent_measurement_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Parent measurement this segment belongs to"
+            },
+            {
+                "name": "parent_group",
+                "type": "VARCHAR(15)",
+                "nullable": true,
+                "description": "Display group name"
+            },
+            {
+                "name": "has_level",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "description": "Whether this segment has a level/elevation reference"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "parent_measurement_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "measurements",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "tenant_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "tenants",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Vertical measurement segments within a 3D model defined by a bottom and top elevation. Used to measure and annotate vertical extents of structural elements like legs or sections."
+    },
+    "twist_plumbs": {
+        "columns": [
+            {
+                "name": "measurement_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The measurement record this twist/plumb data belongs to"
+            },
+            {
+                "name": "top_loop_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The upper cross-section measurement loop"
+            },
+            {
+                "name": "bottom_loop_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The lower cross-section measurement loop"
+            },
+            {
+                "name": "plumb_magnitude",
+                "type": "NUMERIC",
+                "nullable": false,
+                "description": "Magnitude of the tower lean (distance in meters)"
+            },
+            {
+                "name": "plumb_bearing",
+                "type": "NUMERIC",
+                "nullable": false,
+                "description": "Direction of the lean (compass bearing in degrees)"
+            },
+            {
+                "name": "twist_degrees",
+                "type": "NUMERIC",
+                "nullable": false,
+                "description": "Amount of rotation between the two loops in degrees"
+            }
+        ],
+        "primary_keys": [
+            "measurement_id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "bottom_loop_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "measurements",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "measurement_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "measurements",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "top_loop_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "measurements",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Structural integrity measurements for a tower capturing plumb (lean) and twist (rotation) between two cross-sectional measurement loops. Used to assess if a tower is within tolerance."
+    },
+    "vertical_segment_tasks": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "model_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The 3D model being processed"
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "details",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "JSON object with task configuration and details"
+            },
+            {
+                "name": "status_update_date",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp of the last status update"
+            },
+            {
+                "name": "task_status",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Current task status (e.g. pending, running, completed, failed)"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Background processing tasks for computing vertical segment data within a 3D model."
+    },
+    "weblinks": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "asset_version_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The asset version this link is attached to"
+            },
+            {
+                "name": "link_text",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "Display label for the URL"
+            },
+            {
+                "name": "link_url",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "The full URL of the external resource"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "asset_version_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "asset_versions",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "External URLs attached to an asset version for quick reference to related web resources."
+    },
+    "sketches": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "model_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The 3D model this sketch belongs to"
+            },
+            {
+                "name": "plane_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The reference plane this sketch is drawn on"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "is_preset",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this is a system-created default sketch"
+            },
+            {
+                "name": "is_public",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether visible to all users with model access"
+            },
+            {
+                "name": "labels",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "JSON array of text label annotations"
+            },
+            {
+                "name": "last_edited_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "last_edited_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "measurements",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "JSON array of measurement annotations on this sketch"
+            },
+            {
+                "name": "points",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "JSON array of point annotations on this sketch"
+            },
+            {
+                "name": "shapes",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "JSON array of shape objects (lines, polygons, circles) drawn"
+            },
+            {
+                "name": "sketch_type",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Type of sketch (e.g. floor_plan, elevation, detail)"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "plane_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "planes",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "2D drawings created on a reference plane within a 3D model, containing shapes, annotations, measurements, and labels."
+    },
+    "volume_inferences": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "model_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The 3D model these inferences are for"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "equipment_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Predicted physical component ID"
+            },
+            {
+                "name": "is_preset",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this is a system-created default inference"
+            },
+            {
+                "name": "is_public",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether visible to all users"
+            },
+            {
+                "name": "labeler_equipment_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Equipment ID assigned by the human labeler"
+            },
+            {
+                "name": "last_edited_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "last_edited_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "position",
+                "type": "JSON",
+                "nullable": true,
+                "description": "Predicted 3D position in model space"
+            },
+            {
+                "name": "qa_equipment_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Equipment ID confirmed by QA review"
+            },
+            {
+                "name": "rotation",
+                "type": "JSON",
+                "nullable": true,
+                "description": "Predicted rotation (x, y, z) in degrees"
+            },
+            {
+                "name": "rotation_order",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Order in which rotation axes are applied (e.g. XYZ)"
+            },
+            {
+                "name": "scale",
+                "type": "JSON",
+                "nullable": true,
+                "description": "Predicted scale factor"
+            },
+            {
+                "name": "selected_inference_equipment",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "The final selected equipment after review"
+            },
+            {
+                "name": "volume_type",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Type of volume being inferred (e.g. antenna, mount, cable)"
+            },
+            {
+                "name": "center_height",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Height of the center of the volume above ground in meters"
+            },
+            {
+                "name": "dimension_1",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "First dimension of the inferred volume"
+            },
+            {
+                "name": "dimension_2",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Second dimension of the inferred volume"
+            },
+            {
+                "name": "dimension_3",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Third dimension of the inferred volume"
+            },
+            {
+                "name": "downtilt",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Predicted mechanical downtilt angle in degrees"
+            },
+            {
+                "name": "roll",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Predicted roll angle in degrees"
+            },
+            {
+                "name": "azimuth",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Predicted compass bearing/azimuth in degrees"
+            },
+            {
+                "name": "aiml_model_name",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Name of the AI/ML model that generated this inference"
+            },
+            {
+                "name": "aiml_model_version",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Version of the AI/ML model"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [],
+        "description": "AI/ML model predictions suggesting 3D volume placements for equipment on a structure, based on image analysis. These are candidate suggestions before being confirmed as actual volumes."
+    },
+    "tenants": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "parent_company_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The company that owns/hosts the tenanted data"
+            },
+            {
+                "name": "tenant_company_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The company that is the tenant (consuming the data)"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "parent_company_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "companies",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "tenant_company_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "companies",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Represents a tenant relationship between companies, enabling multi-tenant data sharing where a parent company grants a tenant company access to shared data."
+    },
+    "tags": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "category",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "High-level category this tag belongs to"
+            },
+            {
+                "name": "display_type",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "How this tag is rendered in the UI (e.g. badge, icon, label)"
+            },
+            {
+                "name": "tag_value",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "The tag value or label text"
+            },
+            {
+                "name": "show_header",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether to show a header for this tag category in the UI"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [],
+        "description": "Tag definitions with categories and display types, used as a taxonomy for labeling entities (volumes, points, measurements, etc.)."
+    },
+    "twist_plumb_loops": {
+        "columns": [
+            {
+                "name": "measurement_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The measurement this loop belongs to"
+            },
+            {
+                "name": "position",
+                "type": "VARCHAR(20)",
+                "nullable": false,
+                "description": "Vertical position (elevation) of this loop on the tower"
+            },
+            {
+                "name": "centroid",
+                "type": "JSONB",
+                "nullable": false,
+                "description": "3D centroid point of this cross-sectional loop"
+            },
+            {
+                "name": "origin",
+                "type": "JSONB",
+                "nullable": false,
+                "description": "Origin reference point for this loop"
+            },
+            {
+                "name": "azimuth",
+                "type": "NUMERIC",
+                "nullable": false,
+                "description": "Compass bearing/orientation of this loop in degrees"
+            }
+        ],
+        "primary_keys": [
+            "measurement_id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "measurement_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "measurements",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Individual cross-sectional measurement loop data for twist/plumb analysis, representing a horizontal slice through a tower at a given position."
+    },
+    "volumes": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "ddb_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Legacy identifier from an external database"
+            },
+            {
+                "name": "model_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The 3D model this volume is placed in"
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "display_name",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "equipment_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "The physical component catalog entry this volume represents"
+            },
+            {
+                "name": "is_preset",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this is a system-created default volume"
+            },
+            {
+                "name": "is_public",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether visible to all users with model access"
+            },
+            {
+                "name": "labeler_equipment_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Equipment ID as identified by the human labeler"
+            },
+            {
+                "name": "last_edited_by",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "last_edited_on",
+                "type": "TIMESTAMP",
+                "nullable": true
+            },
+            {
+                "name": "position",
+                "type": "JSON",
+                "nullable": true,
+                "description": "3D position (x, y, z) of the volume center in model space"
+            },
+            {
+                "name": "qa_equipment_id",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Equipment ID as confirmed by QA review"
+            },
+            {
+                "name": "rotation",
+                "type": "JSON",
+                "nullable": true,
+                "description": "Rotation angles (x, y, z) of the volume in degrees"
+            },
+            {
+                "name": "rotation_order",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Order in which rotation axes are applied"
+            },
+            {
+                "name": "scale",
+                "type": "JSON",
+                "nullable": true,
+                "description": "Scale factors applied to the volume dimensions"
+            },
+            {
+                "name": "selected_inference_equipment",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Final selected equipment after inference review"
+            },
+            {
+                "name": "volume_type",
+                "type": "VARCHAR(8)",
+                "nullable": true,
+                "description": "Category of volume (e.g. antenna, mount, cable, power, structure)"
+            },
+            {
+                "name": "center_height",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Height of the volume center above ground in meters"
+            },
+            {
+                "name": "dimension_1",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Primary dimension of the volume"
+            },
+            {
+                "name": "dimension_2",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Secondary dimension of the volume"
+            },
+            {
+                "name": "dimension_3",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Tertiary dimension of the volume"
+            },
+            {
+                "name": "downtilt",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Mechanical downtilt angle of the equipment in degrees"
+            },
+            {
+                "name": "roll",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Roll angle of the equipment in degrees"
+            },
+            {
+                "name": "azimuth",
+                "type": "NUMERIC(50, 25)",
+                "nullable": true,
+                "description": "Compass bearing/azimuth the equipment faces in degrees"
+            },
+            {
+                "name": "tenant_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Tenant scoping for this volume"
+            },
+            {
+                "name": "aperture_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Associated aperture if this volume passes through an opening"
+            },
+            {
+                "name": "physical_component_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The physical component catalog entry"
+            },
+            {
+                "name": "physical_component_parameters",
+                "type": "JSONB",
+                "nullable": true,
+                "description": "JSON object of parameter values for parametric components"
+            },
+            {
+                "name": "installation_status",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Status of physical installation (e.g. installed, proposed, removed)"
+            },
+            {
+                "name": "built_from_design",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Whether this volume was placed based on a design revision"
+            },
+            {
+                "name": "physical_component_model_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Specific 3D model variant of the physical component"
+            },
+            {
+                "name": "parent_measurement_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Parent measurement group this volume belongs to"
+            },
+            {
+                "name": "has_level",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "description": "Whether this volume has a level/elevation reference"
+            },
+            {
+                "name": "parent_group",
+                "type": "VARCHAR(15)",
+                "nullable": true,
+                "description": "Display group name for organizational purposes"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "aperture_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "apertures",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "models",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "parent_measurement_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "measurements",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "physical_component_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "physical_components",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "physical_component_model_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "physical_component_models",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "tenant_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "tenants",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "3D volumetric objects placed within a 3D model representing physical equipment (antennas, mounts, cables, brackets, etc.). Each volume links to the physical component catalog and has full spatial attributes. The core entity for tower inventory."
+    },
+    "asset_version_note_readers": {
+        "columns": [
+            {
+                "name": "asset_version_note_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The note that was read"
+            },
+            {
+                "name": "username",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "The user who read it"
+            },
+            {
+                "name": "created_on",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "description": "Timestamp when the note was marked as read"
+            }
+        ],
+        "primary_keys": [
+            "asset_version_note_id",
+            "username"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "asset_version_note_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "asset_version_notes",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Tracks which users have read a specific asset version note, for read-receipt functionality."
+    },
+    "cad_task_revisions": {
+        "columns": [
+            {
+                "name": "cad_task_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The CAD export task"
+            },
+            {
+                "name": "revision_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "A revision included in this CAD export"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "cad_task_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "cad_tasks",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "revision_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "revisions",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Join table linking CAD export tasks to the specific revisions included in that export."
+    },
+    "revision_items": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "revision_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The revision this item belongs to"
+            },
+            {
+                "name": "volume_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The volume being added, removed, or modified"
+            },
+            {
+                "name": "action_type",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "The change action (e.g. add, remove, modify, retain)"
+            },
+            {
+                "name": "parent_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "The previous/existing volume being replaced (for modify actions)"
+            },
+            {
+                "name": "hidden_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "A volume hidden by this revision item"
+            },
+            {
+                "name": "modified_after_confirmation",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "description": "Whether this item was changed after being confirmed"
+            },
+            {
+                "name": "construction_status",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Physical construction state (e.g. proposed, under_construction, complete)"
+            },
+            {
+                "name": "area_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Associated area polygon for this revision item"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "area_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "areas",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "hidden_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "volumes",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "parent_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "volumes",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "revision_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "revisions",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "volume_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "volumes",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Individual volume placements or changes within a design revision. Each item represents an equipment action (add/remove/modify) with a construction status."
+    },
+    "physical_component_model_parameter_values": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "physical_component_model_parameter_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The parameter definition this value is for"
+            },
+            {
+                "name": "volume_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The volume instance this parameter value applies to"
+            },
+            {
+                "name": "value",
+                "type": "VARCHAR",
+                "nullable": false,
+                "description": "The parameter value"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "physical_component_model_parameter_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "physical_component_model_parameters",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "volume_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "volumes",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Actual parameter values for a specific volume's physical component 3D model (e.g. the tilt angle set for a parametric antenna model)."
+    },
+    "site_custom_field_values": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "UUID",
+                "nullable": false
+            },
+            {
+                "name": "site_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The site this value belongs to"
+            },
+            {
+                "name": "custom_field_id",
+                "type": "UUID",
+                "nullable": false,
+                "description": "The custom field definition this value is for"
+            },
+            {
+                "name": "group_id",
+                "type": "UUID",
+                "nullable": true,
+                "description": "Optional grouping identifier for multi-value fields"
+            },
+            {
+                "name": "unit",
+                "type": "VARCHAR",
+                "nullable": true,
+                "description": "Unit of measurement for numeric values"
+            },
+            {
+                "name": "value_integer",
+                "type": "INTEGER",
+                "nullable": true
+            },
+            {
+                "name": "value_float",
+                "type": "DOUBLE PRECISION",
+                "nullable": true
+            },
+            {
+                "name": "value_string",
+                "type": "VARCHAR",
+                "nullable": true
+            },
+            {
+                "name": "value_boolean",
+                "type": "BOOLEAN",
+                "nullable": true
+            },
+            {
+                "name": "value_date",
+                "type": "DATE",
+                "nullable": true
+            },
+            {
+                "name": "value_string_list",
+                "type": "ARRAY",
+                "nullable": true,
+                "description": "Array of string values for list-type fields"
+            }
+        ],
+        "primary_keys": [
+            "id"
+        ],
+        "foreign_keys": [
+            {
+                "constrained_columns": [
+                    "custom_field_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "site_custom_fields",
+                "referred_columns": [
+                    "id"
+                ]
+            },
+            {
+                "constrained_columns": [
+                    "site_id"
+                ],
+                "referred_schema": "fivebyfive",
+                "referred_table": "sites",
+                "referred_columns": [
+                    "id"
+                ]
+            }
+        ],
+        "description": "Typed custom field values for sites. Supports multiple value types \u2014 only one value column is populated per row."
+    }
+}
