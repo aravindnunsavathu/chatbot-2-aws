@@ -53,79 +53,101 @@ AWS App Runner (Streamlit container)
 - AWS account with Bedrock model access enabled for:
   - `anthropic.claude-3-5-haiku-20241022-v1:0`
   - `amazon.titan-embed-text-v2:0`
-- RDS PostgreSQL instance with pgvector available
 - AWS CLI configured locally (`aws configure`)
+- Terraform >= 1.5 installed
 - Docker installed
 
 ---
 
-## Setup
+## Deployment
 
-### 1. RDS — enable pgvector and populate embeddings
+All infrastructure is managed by Terraform. The deployment has four steps.
 
-Point env vars at your RDS instance and run the one-time setup script:
-
-```bash
-export DB_HOST=your-rds-endpoint.rds.amazonaws.com
-export DB_USER=postgres
-export DB_PASSWORD=your-password
-export AWS_REGION=us-east-1
-
-python3 setup_vectors.py
-```
-
-This enables the `vector` extension, adds `embedding vector(1536)` columns to `physical_components` and `asset_version_notes`, embeds all rows using Bedrock Titan Embeddings v2, and creates HNSW indexes.
-
-### 2. Build and push Docker image to ECR
+### Step 1 — provision infrastructure
 
 ```bash
-# Create ECR repo (one-time)
-aws ecr create-repository --repository-name fivebyfive-chatbot --region us-east-1
+cd terraform
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars if you want to change region, db name, etc.
 
-# Authenticate Docker to ECR
-aws ecr get-login-password --region us-east-1 \
-  | docker login --username AWS --password-stdin \
-    <account-id>.dkr.ecr.us-east-1.amazonaws.com
-
-# Build and push
-docker build -t fivebyfive-chatbot .
-docker tag fivebyfive-chatbot:latest \
-  <account-id>.dkr.ecr.us-east-1.amazonaws.com/fivebyfive-chatbot:latest
-docker push \
-  <account-id>.dkr.ecr.us-east-1.amazonaws.com/fivebyfive-chatbot:latest
+terraform init
+terraform apply
 ```
 
-### 3. Deploy to App Runner
+This creates: VPC, private/public subnets, security groups, Bedrock VPC endpoint, RDS PostgreSQL (`db.t3.micro`), ECR repository, App Runner VPC connector, IAM roles, and the App Runner service.
 
-Create an App Runner service via the AWS Console or CLI pointing at the ECR image. Set the following environment variables in the App Runner service configuration:
+> **Note:** The App Runner service creation will fail on the first `terraform apply` if no Docker image has been pushed to ECR yet. That is expected — continue to Step 2, then re-run `terraform apply`.
 
-```
-AWS_REGION=us-east-1
-LLM_MODEL_ID=anthropic.claude-3-5-haiku-20241022-v1:0
-EMBED_MODEL_ID=amazon.titan-embed-text-v2:0
-DB_HOST=your-rds-endpoint.rds.amazonaws.com
-DB_PORT=5432
-DB_NAME=fivebyfiveqa
-DB_USER=postgres
-DB_PASSWORD=your-password
+### Step 2 — build and push the Docker image
+
+Terraform outputs the exact commands to run. Copy and execute them:
+
+```bash
+terraform output -raw step_1_push_image
 ```
 
-### 4. IAM — grant App Runner access to Bedrock
+This authenticates Docker to ECR, builds the image, and pushes it. Run the printed commands from the `chatbot-2-aws` directory.
 
-Attach the following policy to the App Runner instance role:
+If this is a re-run after Step 1 failed, finish with:
 
-```json
-{
-  "Effect": "Allow",
-  "Action": [
-    "bedrock:InvokeModel",
-    "bedrock:Converse"
-  ],
-  "Resource": [
-    "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-5-haiku-20241022-v1:0",
-    "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-embed-text-v2:0"
-  ]
-}
+```bash
+terraform apply
+```
+
+### Step 3 — trigger App Runner deployment
+
+```bash
+terraform output -raw step_2_deploy_app_runner | bash
+```
+
+App Runner will pull the image from ECR and start the service. The public URL is available via:
+
+```bash
+terraform output app_url
+```
+
+### Step 4 — populate pgvector embeddings (one-time)
+
+`setup_vectors.py` needs to reach the RDS instance, which is in a private subnet. Temporarily allow access by adding your IP to the RDS security group in the AWS Console (port 5432), then run:
+
+```bash
+terraform output -raw step_3_setup_vectors
+# Copy and run the printed command — it sets all env vars automatically
+```
+
+This enables the `vector` extension, adds `embedding vector(1536)` columns to `physical_components` and `asset_version_notes`, embeds all rows using Bedrock Titan Embeddings v2, and creates HNSW indexes. Remove the temporary security group rule when done.
+
+---
+
+## Cost estimate (free tier account)
+
+| Resource | Cost |
+|---|---|
+| RDS `db.t3.micro` | Free (750 hrs/month for 12 months) |
+| ECR | Free (500 MB/month) |
+| App Runner 0.25 vCPU / 0.5 GB | ~$5–10/month |
+| Bedrock VPC Interface endpoint | ~$14/month |
+| Bedrock usage | Pay per token |
+
+---
+
+## Updating the app
+
+To deploy a new version of the app:
+
+```bash
+# From the chatbot-2-aws directory — rebuild, push, redeploy
+terraform -chdir=terraform output -raw step_1_push_image | bash
+terraform -chdir=terraform output -raw step_2_deploy_app_runner | bash
+```
+
+---
+
+## Tearing down
+
+```bash
+cd terraform
+terraform destroy
 ```
 
 ---
