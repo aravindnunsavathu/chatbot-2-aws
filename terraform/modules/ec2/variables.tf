@@ -6,15 +6,15 @@ variable "aws_region" {
   type = string
 }
 
-variable "ecr_repository_url" {
+variable "public_subnet_id" {
   type = string
 }
 
-variable "private_subnet_ids" {
-  type = list(string)
+variable "ec2_sg_id" {
+  type = string
 }
 
-variable "apprunner_sg_id" {
+variable "ecr_repository_url" {
   type = string
 }
 
@@ -41,4 +41,10 @@ variable "llm_model_id" {
 
 variable "embed_model_id" {
   type = string
+}
+
+variable "key_name" {
+  type        = string
+  description = "EC2 key pair name for SSH access. Leave empty to skip SSH access (use SSM Session Manager instead)."
+  default     = ""
 }

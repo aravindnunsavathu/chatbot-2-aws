@@ -13,7 +13,7 @@ See the [local version](https://github.com/aravindnunsavathu/chatbot-2) for back
 | LLM | Ollama `llama3.1:8b` | Amazon Bedrock `claude-3-5-haiku` |
 | Embeddings | Ollama `nomic-embed-text` (768d) | Bedrock Titan Embeddings v2 (1536d) |
 | Database | PostgreSQL on `localhost:5433` | Amazon RDS PostgreSQL |
-| UI hosting | `streamlit run` locally | AWS App Runner (containerised) |
+| UI hosting | `streamlit run` locally | EC2 t2.micro (containerised, free tier) |
 | Config | Hardcoded constants | Environment variables |
 
 ---
@@ -24,12 +24,12 @@ See the [local version](https://github.com/aravindnunsavathu/chatbot-2) for back
 Browser
   │
   ▼
-AWS App Runner (Streamlit container)
+EC2 t2.micro / Elastic IP (Docker — Streamlit on port 8501)
   │
   ├── Amazon Bedrock ──► Claude 3.5 Haiku   (table picking, SQL gen, answer)
   │                 ──► Titan Embeddings v2  (vector search)
   │
-  └── Amazon RDS PostgreSQL
+  └── Amazon RDS PostgreSQL  (private subnet, VPC-only access)
         schema: fivebyfive (58 tables)
         extension: pgvector (HNSW indexes on 2 tables)
 ```
@@ -42,9 +42,9 @@ AWS App Runner (Streamlit container)
 |---|---|
 | Amazon Bedrock | LLM inference (Claude) + embeddings (Titan) |
 | Amazon RDS for PostgreSQL | Database with pgvector extension |
-| AWS App Runner | Hosts the Streamlit container |
+| EC2 t2.micro | Hosts the Streamlit Docker container |
 | Amazon ECR | Docker image registry |
-| IAM | Role granting App Runner access to Bedrock + RDS |
+| IAM | Instance profile granting EC2 access to Bedrock + ECR |
 
 ---
 
@@ -74,9 +74,7 @@ terraform init
 terraform apply
 ```
 
-This creates: VPC, private/public subnets, security groups, Bedrock VPC endpoint, RDS PostgreSQL (`db.t3.micro`), ECR repository, App Runner VPC connector, IAM roles, and the App Runner service.
-
-> **Note:** The App Runner service creation will fail on the first `terraform apply` if no Docker image has been pushed to ECR yet. That is expected — continue to Step 2, then re-run `terraform apply`.
+This creates: VPC, private/public subnets, security groups, RDS PostgreSQL (`db.t3.micro`), ECR repository, EC2 t2.micro instance with Elastic IP, and IAM roles.
 
 ### Step 2 — build and push the Docker image
 
@@ -88,34 +86,29 @@ terraform output -raw step_1_push_image
 
 This authenticates Docker to ECR, builds the image, and pushes it. Run the printed commands from the `chatbot-2-aws` directory.
 
-If this is a re-run after Step 1 failed, finish with:
+### Step 3 — start the app on EC2
 
 ```bash
-terraform apply
+terraform output -raw step_2_deploy_ec2 | bash
 ```
 
-### Step 3 — trigger App Runner deployment
-
-```bash
-terraform output -raw step_2_deploy_app_runner | bash
-```
-
-App Runner will pull the image from ECR and start the service. The public URL is available via:
+This uses AWS SSM to run `/opt/start_chatbot.sh` on the EC2 instance, which pulls the image from ECR and starts the container. The public URL is:
 
 ```bash
 terraform output app_url
 ```
 
+> **Note:** SSM agent takes ~2 minutes to become available after the instance starts. If the command fails, wait a moment and try again.
+
 ### Step 4 — populate pgvector embeddings (one-time)
 
-`setup_vectors.py` needs to reach the RDS instance, which is in a private subnet. Temporarily allow access by adding your IP to the RDS security group in the AWS Console (port 5432), then run:
+Run `setup_vectors.py` inside the container on EC2 via SSM (no SSH or VPN needed):
 
 ```bash
-terraform output -raw step_3_setup_vectors
-# Copy and run the printed command — it sets all env vars automatically
+terraform output -raw step_3_setup_vectors | bash
 ```
 
-This enables the `vector` extension, adds `embedding vector(1536)` columns to `physical_components` and `asset_version_notes`, embeds all rows using Bedrock Titan Embeddings v2, and creates HNSW indexes. Remove the temporary security group rule when done.
+This enables the `vector` extension, adds `embedding vector(1536)` columns to `physical_components` and `asset_version_notes`, embeds all rows using Bedrock Titan Embeddings v2, and creates HNSW indexes.
 
 ---
 
@@ -123,10 +116,10 @@ This enables the `vector` extension, adds `embedding vector(1536)` columns to `p
 
 | Resource | Cost |
 |---|---|
+| EC2 `t2.micro` | Free (750 hrs/month for 12 months) |
+| Elastic IP (associated) | Free |
 | RDS `db.t3.micro` | Free (750 hrs/month for 12 months) |
 | ECR | Free (500 MB/month) |
-| App Runner 0.25 vCPU / 0.5 GB | ~$5–10/month |
-| Bedrock VPC Interface endpoint | ~$14/month |
 | Bedrock usage | Pay per token |
 
 ---
@@ -136,9 +129,9 @@ This enables the `vector` extension, adds `embedding vector(1536)` columns to `p
 To deploy a new version of the app:
 
 ```bash
-# From the chatbot-2-aws directory — rebuild, push, redeploy
+# From the chatbot-2-aws directory — rebuild, push, restart
 terraform -chdir=terraform output -raw step_1_push_image | bash
-terraform -chdir=terraform output -raw step_2_deploy_app_runner | bash
+terraform -chdir=terraform output -raw step_2_deploy_ec2 | bash
 ```
 
 ---
@@ -148,6 +141,22 @@ terraform -chdir=terraform output -raw step_2_deploy_app_runner | bash
 ```bash
 cd terraform
 terraform destroy
+```
+
+---
+
+## SSH access (optional)
+
+By default, EC2 is managed via SSM Session Manager (no key pair needed). To enable SSH, create a key pair in the AWS Console and set `key_name` in `terraform.tfvars`:
+
+```hcl
+key_name = "your-key-pair-name"
+```
+
+Then SSH using:
+
+```bash
+ssh -i your-key.pem ec2-user@$(terraform output -raw ec2_public_ip)
 ```
 
 ---
@@ -173,7 +182,7 @@ terraform destroy
 pip install -r requirements.txt
 
 export DB_HOST=your-rds-endpoint.rds.amazonaws.com
-export DB_USER=postgres
+export DB_USER=fivebyfive_admin
 export DB_PASSWORD=your-password
 export AWS_REGION=us-east-1
 
@@ -190,7 +199,7 @@ AWS credentials are picked up from `~/.aws/credentials` or environment variables
 |---|---|
 | `app.py` | Streamlit application (Bedrock + RDS) |
 | `setup_vectors.py` | One-time pgvector setup using Bedrock Titan embeddings |
-| `Dockerfile` | Container definition for App Runner deployment |
+| `Dockerfile` | Container definition for EC2 deployment |
 | `requirements.txt` | Python dependencies |
 | `.env.example` | Documents all required environment variables |
 | `fivebyfive_metadata.json` | Schema metadata: 58 tables with descriptions |

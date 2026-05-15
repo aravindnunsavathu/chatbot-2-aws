@@ -47,3 +47,9 @@ variable "embed_model_id" {
   description = "Bedrock model ID for vector embeddings."
   default     = "amazon.titan-embed-text-v2:0"
 }
+
+variable "key_name" {
+  type        = string
+  description = "EC2 key pair name for SSH access. Leave empty to use SSM Session Manager instead."
+  default     = ""
+}

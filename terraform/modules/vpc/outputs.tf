@@ -10,8 +10,8 @@ output "public_subnet_ids" {
   value = aws_subnet.public[*].id
 }
 
-output "apprunner_sg_id" {
-  value = aws_security_group.apprunner.id
+output "ec2_sg_id" {
+  value = aws_security_group.ec2.id
 }
 
 output "rds_sg_id" {

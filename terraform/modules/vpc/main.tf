@@ -59,60 +59,49 @@ resource "aws_route_table_association" "private" {
 
 # ── Security groups ────────────────────────────────────────────────────────────
 
-resource "aws_security_group" "apprunner" {
-  name        = "${var.project_name}-apprunner-sg"
-  description = "App Runner VPC connector: outbound to RDS and VPC endpoints"
+resource "aws_security_group" "ec2" {
+  name        = "${var.project_name}-ec2-sg"
+  description = "EC2: inbound Streamlit (8501) and SSH (22) from internet, all outbound"
   vpc_id      = aws_vpc.main.id
 
+  ingress {
+    description = "Streamlit web UI"
+    from_port   = 8501
+    to_port     = 8501
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
-    description = "All outbound (to RDS and VPC endpoints)"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  tags = { Name = "${var.project_name}-apprunner-sg" }
+
+  tags = { Name = "${var.project_name}-ec2-sg" }
 }
 
 resource "aws_security_group" "rds" {
   name        = "${var.project_name}-rds-sg"
-  description = "RDS: inbound PostgreSQL from App Runner only"
+  description = "RDS: inbound PostgreSQL from EC2 only"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description     = "PostgreSQL from App Runner"
+    description     = "PostgreSQL from EC2"
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
-    security_groups = [aws_security_group.apprunner.id]
+    security_groups = [aws_security_group.ec2.id]
   }
+
   tags = { Name = "${var.project_name}-rds-sg" }
-}
-
-resource "aws_security_group" "vpc_endpoints" {
-  name        = "${var.project_name}-vpc-endpoints-sg"
-  description = "Interface VPC endpoints: HTTPS from App Runner"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    description     = "HTTPS from App Runner"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [aws_security_group.apprunner.id]
-  }
-  tags = { Name = "${var.project_name}-vpc-endpoints-sg" }
-}
-
-# ── VPC endpoints ──────────────────────────────────────────────────────────────
-# Bedrock runtime — keeps LLM calls inside the AWS network (no NAT Gateway needed)
-
-resource "aws_vpc_endpoint" "bedrock_runtime" {
-  vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.${var.aws_region}.bedrock-runtime"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = aws_subnet.private[*].id
-  security_group_ids  = [aws_security_group.vpc_endpoints.id]
-  private_dns_enabled = true
-  tags                = { Name = "${var.project_name}-bedrock-runtime-endpoint" }
 }

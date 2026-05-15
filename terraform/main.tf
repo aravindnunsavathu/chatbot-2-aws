@@ -48,17 +48,18 @@ module "ecr" {
   project_name = var.project_name
 }
 
-module "app_runner" {
-  source             = "./modules/app_runner"
+module "ec2" {
+  source             = "./modules/ec2"
   project_name       = var.project_name
   aws_region         = var.aws_region
+  public_subnet_id   = module.vpc.public_subnet_ids[0]
+  ec2_sg_id          = module.vpc.ec2_sg_id
   ecr_repository_url = module.ecr.repository_url
-  private_subnet_ids = module.vpc.private_subnet_ids
-  apprunner_sg_id    = module.vpc.apprunner_sg_id
   db_host            = module.rds.db_endpoint
   db_name            = var.db_name
   db_username        = var.db_username
   db_password        = module.rds.db_password
   llm_model_id       = var.llm_model_id
   embed_model_id     = var.embed_model_id
+  key_name           = var.key_name
 }
