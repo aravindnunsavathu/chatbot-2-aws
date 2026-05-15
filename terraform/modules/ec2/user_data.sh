@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-# Install Docker
-dnf install -y docker
+# Install Docker and EC2 Instance Connect
+dnf install -y docker ec2-instance-connect
 systemctl start docker
 systemctl enable docker
 
