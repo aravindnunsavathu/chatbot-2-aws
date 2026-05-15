@@ -60,7 +60,7 @@ resource "aws_iam_instance_profile" "ec2" {
 
 resource "aws_instance" "main" {
   ami                    = data.aws_ami.amazon_linux_2023.id
-  instance_type          = "t2.micro"
+  instance_type          = "t3.micro"
   subnet_id              = var.public_subnet_id
   vpc_security_group_ids = [var.ec2_sg_id]
   iam_instance_profile   = aws_iam_instance_profile.ec2.name
