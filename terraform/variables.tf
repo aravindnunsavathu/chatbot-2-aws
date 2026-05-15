@@ -39,7 +39,7 @@ variable "db_instance_class" {
 variable "llm_model_id" {
   type        = string
   description = "Bedrock model ID for SQL generation and answer formatting."
-  default     = "anthropic.claude-3-5-haiku-20241022-v1:0"
+  default     = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
 }
 
 variable "embed_model_id" {

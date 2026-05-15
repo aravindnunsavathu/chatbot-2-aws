@@ -31,12 +31,9 @@ resource "aws_iam_role_policy" "bedrock" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect = "Allow"
-      Action = ["bedrock:InvokeModel", "bedrock:Converse"]
-      Resource = [
-        "arn:aws:bedrock:${var.aws_region}::foundation-model/${var.llm_model_id}",
-        "arn:aws:bedrock:${var.aws_region}::foundation-model/${var.embed_model_id}",
-      ]
+      Effect   = "Allow"
+      Action   = ["bedrock:InvokeModel", "bedrock:Converse"]
+      Resource = ["arn:aws:bedrock:*::foundation-model/*", "arn:aws:bedrock:*:*:inference-profile/*"]
     }]
   })
 }
