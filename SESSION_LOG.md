@@ -255,7 +255,53 @@ PGSSLMODE=require pg_restore \
 
 ---
 
-## Phase 9 — ECR cleanup issue
+## Phase 9 — Vector setup issues
+
+### Issue: setup_vectors.py started Streamlit instead of running the script
+```
+Uvicorn server started on 0.0.0.0:8501
+```
+**Cause:** The Dockerfile uses `ENTRYPOINT` (not `CMD`), so any command passed to `docker run` is appended to the entrypoint rather than replacing it.
+
+**Fix:** Use `--entrypoint` to override:
+```bash
+sudo docker run --rm --env-file /opt/chatbot.env \
+  --entrypoint python3 \
+  $(cat /opt/ecr_url):latest setup_vectors.py
+```
+
+### Issue: Local embeddings (768d) restored to RDS — incompatible with AWS app (1024d)
+**Cause:** The local setup_vectors.py used Ollama `nomic-embed-text` which outputs 768d vectors. The pg_restore copied these into RDS. The AWS app uses Bedrock Titan v2 which outputs 1024d. Querying with a 1024d vector against 768d embeddings causes a dimension mismatch error.
+
+**Fix:** Drop the old embedding columns before running setup_vectors.py:
+```bash
+PGPASSWORD=$(grep DB_PASSWORD /opt/chatbot.env | cut -d= -f2) \
+PGSSLMODE=require \
+psql -h $(grep DB_HOST /opt/chatbot.env | cut -d= -f2) \
+  -U fivebyfive_admin -d fivebyfiveqa -c "
+ALTER TABLE fivebyfive.physical_components DROP COLUMN IF EXISTS embedding;
+ALTER TABLE fivebyfive.asset_version_notes DROP COLUMN IF EXISTS embedding;
+"
+```
+
+### Error: Titan Embeddings v2 dimension 1536 is invalid
+```
+ValidationException: Malformed input request: #: only 1 subschema matches out of 2
+```
+**Cause:** `EMBED_DIM = 1536` was set based on incorrect assumption. Titan Embeddings **v1** outputs 1536d. Titan Embeddings **v2** only supports 256, 512, or 1024 dimensions.
+
+**Fix:** Changed `EMBED_DIM = 1536` to `EMBED_DIM = 1024` in both `app.py` and `setup_vectors.py`. Rebuilt and pushed the Docker image, dropped old embedding columns, re-ran setup_vectors.py.
+
+### Missing tables after first pg_restore (physical_components, asset_version_notes)
+**Cause:** These two tables have an `embedding vector(768)` column from the local pgvector setup. The pg_restore skipped them because the `vector` extension was not enabled on RDS at restore time.
+
+**Fix:**
+1. Enable pgvector on RDS first: `CREATE EXTENSION IF NOT EXISTS vector;`
+2. Re-run pg_restore
+
+---
+
+## Phase 10 — ECR cleanup issue
 
 ### Error: ECR repository not empty during terraform destroy
 ```
@@ -338,10 +384,21 @@ PGSSLMODE=require pg_restore \
 ```
 
 ### Step 5 — Set up vectors (first time only, or after destroy)
-Inside SSH on EC2:
+Inside SSH on EC2 (must be root — `sudo su -`):
 ```bash
+# Drop any existing embedding columns (e.g. 768d from local restore)
+PGPASSWORD=$(grep DB_PASSWORD /opt/chatbot.env | cut -d= -f2) \
+PGSSLMODE=require \
+psql -h $(grep DB_HOST /opt/chatbot.env | cut -d= -f2) \
+  -U fivebyfive_admin -d fivebyfiveqa -c "
+ALTER TABLE fivebyfive.physical_components DROP COLUMN IF EXISTS embedding;
+ALTER TABLE fivebyfive.asset_version_notes DROP COLUMN IF EXISTS embedding;
+"
+
+# Run setup — creates 1024d columns, embeds with Titan v2, builds HNSW indexes
 sudo docker run --rm --env-file /opt/chatbot.env \
-  $(sudo cat /opt/ecr_url):latest python3 setup_vectors.py
+  --entrypoint python3 \
+  $(cat /opt/ecr_url):latest setup_vectors.py
 ```
 
 ### Step 6 — Open the app
@@ -390,3 +447,7 @@ The Docker image in ECR is also deleted — re-run Step 2 to push it again.
 6. **RDS in private subnet needs SSH tunnel from Mac** — EC2 acts as jump host
 7. **Plain SQL pg_dump fails on RDS** — use `-Fc` custom format + `pg_restore`
 8. **terraform destroy removes all data** — keep a local dump file and restore each time
+9. **Enable pgvector extension on RDS before restoring** — tables with `vector` columns are silently skipped if the extension isn't present
+10. **Titan Embeddings v2 max dimension is 1024, not 1536** — v1 outputs 1536d; v2 supports only 256, 512, or 1024
+11. **Drop old embedding columns before re-running setup_vectors.py** — `ADD COLUMN IF NOT EXISTS` silently skips if wrong-dimension column already exists
+12. **Use `--entrypoint python3` to run scripts in the container** — `ENTRYPOINT` in Dockerfile means commands passed to `docker run` are appended, not replacing the entrypoint
