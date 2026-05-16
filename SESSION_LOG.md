@@ -365,9 +365,29 @@ Inside SSH:
 sudo /opt/start_chatbot.sh
 ```
 
-### Step 4 — Restore data (RDS is empty after destroy)
+### Step 4 — Enable pgvector on RDS (must be done before restore)
+Inside SSH on EC2 (must be root — `sudo su -`):
 ```bash
-# Terminal 1 — SSH tunnel
+PGPASSWORD=$(grep DB_PASSWORD /opt/chatbot.env | cut -d= -f2) \
+PGSSLMODE=require \
+psql -h $(grep DB_HOST /opt/chatbot.env | cut -d= -f2) \
+  -U fivebyfive_admin -d fivebyfiveqa \
+  -c "CREATE EXTENSION vector SCHEMA public;"
+```
+
+Verify it installed:
+```bash
+PGPASSWORD=$(grep DB_PASSWORD /opt/chatbot.env | cut -d= -f2) \
+PGSSLMODE=require \
+psql -h $(grep DB_HOST /opt/chatbot.env | cut -d= -f2) \
+  -U fivebyfive_admin -d fivebyfiveqa \
+  -c "\dx"
+```
+You should see `vector` in the list.
+
+### Step 5 — Restore data (RDS is empty after destroy)
+```bash
+# Terminal 1 — SSH tunnel (keep running)
 ssh -i ~/Downloads/fivebyfive-key.pem \
   -L 5434:fivebyfive-postgres.cozsgk6satoj.us-east-1.rds.amazonaws.com:5432 \
   ec2-user@$(cd /Users/aravindnunsavathu/Downloads/AI-code/chatbot-2-aws/terraform && terraform output -raw ec2_public_ip) \
@@ -383,7 +403,7 @@ PGSSLMODE=require pg_restore \
   /Users/aravindnunsavathu/Downloads/fivebyfive_dump.dump
 ```
 
-### Step 5 — Set up vectors (first time only, or after destroy)
+### Step 6 — Set up vectors (first time only, or after destroy)
 Inside SSH on EC2 (must be root — `sudo su -`):
 ```bash
 # Drop any existing embedding columns (e.g. 768d from local restore)
@@ -401,7 +421,7 @@ sudo docker run --rm --env-file /opt/chatbot.env \
   $(cat /opt/ecr_url):latest setup_vectors.py
 ```
 
-### Step 6 — Open the app
+### Step 7 — Open the app
 ```bash
 cd /Users/aravindnunsavathu/Downloads/AI-code/chatbot-2-aws/terraform
 terraform output app_url
