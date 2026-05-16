@@ -11,7 +11,7 @@ import streamlit as st
 AWS_REGION     = os.environ.get("AWS_REGION", "us-east-1")
 LLM_MODEL_ID   = os.environ.get("LLM_MODEL_ID", "anthropic.claude-3-5-haiku-20241022-v1:0")
 EMBED_MODEL_ID = os.environ.get("EMBED_MODEL_ID", "amazon.titan-embed-text-v2:0")
-EMBED_DIM      = 1536  # Titan Embeddings v2 output dimension
+EMBED_DIM      = 1024  # Titan Embeddings v2 max supported dimension
 
 DB = dict(
     host=os.environ.get("DB_HOST", "localhost"),
