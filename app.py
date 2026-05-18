@@ -199,11 +199,29 @@ def _strip_fences(sql: str) -> str:
     sql = re.sub(r"^```\s*", "", sql, flags=re.IGNORECASE)
     return re.sub(r"\s*```$", "", sql).strip()
 
-def pick_tables(question: str, tier1: str) -> list[str]:
+def build_history(messages: list, max_turns: int = 3) -> str:
+    pairs = []
+    i = 0
+    while i < len(messages) - 1:
+        if messages[i]["role"] == "user" and messages[i + 1]["role"] == "assistant":
+            pairs.append((messages[i]["content"], messages[i + 1]["content"]))
+            i += 2
+        else:
+            i += 1
+    recent = pairs[-max_turns:]
+    if not recent:
+        return ""
+    lines = ["Previous conversation (use this to interpret follow-up questions):"]
+    for q, a in recent:
+        lines.append(f"Q: {q}")
+        lines.append(f"A: {a[:300]}{'...' if len(a) > 300 else ''}")
+    return "\n".join(lines) + "\n"
+
+def pick_tables(question: str, tier1: str, history: str = "") -> list[str]:
     prompt = f"""You are a database expert selecting tables needed to answer a SQL question.
 
 {tier1}
-
+{history}
 User question: {question}
 
 Which tables are needed? Include intermediate join tables.
@@ -219,7 +237,7 @@ Nothing else — just the JSON array."""
             pass
     return re.findall(r'"([a-z_]+)"', text)
 
-def generate_sql(question: str, tier2: str, vector_hints: str = "") -> str:
+def generate_sql(question: str, tier2: str, vector_hints: str = "", history: str = "") -> str:
     hints_section = (
         f"\nVector search pre-results (use these IDs in WHERE/JOIN clauses if relevant):\n{vector_hints}\n"
         if vector_hints else ""
@@ -237,7 +255,7 @@ Rules:
 - Use the exact column values shown in [known values: ...] hints — do not guess
 - Add LIMIT {MAX_ROWS} unless the question asks for a count or aggregate
 - Return ONLY the SQL query — no markdown, no backticks, no explanation
-
+{history}
 User question: {question}
 
 SQL:"""
@@ -440,6 +458,7 @@ for msg in st.session_state.messages:
 
 # ── Chat input ─────────────────────────────────────────────────────────────────
 if question := st.chat_input("Ask a question about your data..."):
+    history = build_history(st.session_state.messages)
     st.session_state.messages.append({"role": "user", "content": question})
     with st.chat_message("user"):
         st.markdown(question)
@@ -448,7 +467,7 @@ if question := st.chat_input("Ask a question about your data..."):
         with st.status("Working...", expanded=True) as status:
 
             status.write("Identifying relevant tables...")
-            tables = pick_tables(question, tier1)
+            tables = pick_tables(question, tier1, history)
             status.write(f"Selected: {', '.join(f'`{t}`' for t in tables)}")
 
             tier2 = build_tier2(metadata, tables, sample_values)
@@ -459,7 +478,7 @@ if question := st.chat_input("Ask a question about your data..."):
                 vector_hints = vector_search(tables, question)
 
             status.write("Generating SQL...")
-            sql = generate_sql(question, tier2, vector_hints)
+            sql = generate_sql(question, tier2, vector_hints, history)
 
             status.write("Running query...")
             columns, rows, error = run_sql(sql)
