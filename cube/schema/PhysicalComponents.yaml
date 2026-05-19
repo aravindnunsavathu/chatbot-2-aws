@@ -1,0 +1,107 @@
+cubes:
+  - name: PhysicalComponents
+    sql_table: fivebyfive.physical_components
+    description: "Catalog of physical equipment and hardware components (antennas, mounts, brackets, cables, etc.) with manufacturer specs and dimensions. Used as a reference library for placing components in 3D models."
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of physical components"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: category
+        sql: category
+        type: string
+        description: "High-level category of the component (e.g. antenna, mount, cable, power)"
+      - name: primary_type
+        sql: primary_type
+        type: string
+        description: "Primary classification within the category"
+      - name: secondary_type
+        sql: secondary_type
+        type: string
+        description: "Secondary/sub classification"
+      - name: is_parametric
+        sql: is_parametric
+        type: boolean
+        description: "Whether this component has adjustable parametric dimensions"
+      - name: is_discontinued
+        sql: is_discontinued
+        type: boolean
+        description: "Whether this component is no longer manufactured"
+      - name: manufacturer
+        sql: manufacturer
+        type: string
+        description: "Name of the manufacturer"
+      - name: model_identifier
+        sql: model_identifier
+        type: string
+        description: "Manufacturer model number or identifier"
+      - name: family_identifier
+        sql: family_identifier
+        type: string
+        description: "Product family identifier"
+      - name: shape
+        sql: shape
+        type: string
+        description: "Physical shape of the component (e.g. rectangular, cylindrical)"
+      - name: height_m
+        sql: height_m
+        type: number
+        description: "Height in meters"
+      - name: width_m
+        sql: width_m
+        type: number
+        description: "Width in meters"
+      - name: depth_m
+        sql: depth_m
+        type: number
+        description: "Depth in meters"
+      - name: diameter_m
+        sql: diameter_m
+        type: number
+        description: "Diameter in meters (for cylindrical components)"
+      - name: sail_area_m
+        sql: sail_area_m
+        type: number
+        description: "Wind-exposed sail area in square meters"
+      - name: weight_kg
+        sql: weight_kg
+        type: number
+        description: "Weight in kilograms"
+      - name: component_description
+        sql: component_description
+        type: string
+        description: "Human-readable description of the component"
+      - name: storage_service
+        sql: storage_service
+        type: string
+        description: "Storage service hosting spec sheets and images"
+      - name: spec_sheets
+        sql: spec_sheets
+        type: string
+        description: "Array of URLs to specification/datasheet documents"
+      - name: images
+        sql: images
+        type: string
+        description: "Array of URLs to component images"
+      - name: capacity
+        sql: capacity
+        type: number
+        description: "Capacity specification (e.g. port count for a cable)"
+      - name: capacity_units
+        sql: capacity_units
+        type: string
+        description: "Units for the capacity value"
+      - name: size
+        sql: size
+        type: number
+        description: "Size specification"
+      - name: size_units
+        sql: size_units
+        type: string
+        description: "Units for the size value"

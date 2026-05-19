@@ -1,0 +1,39 @@
+cubes:
+  - name: Grants
+    sql_table: fivebyfive.grants
+    description: "Access grants giving specific users or companies permission to view or interact with an asset version."
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of grants"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: asset_version_id
+        sql: asset_version_id
+        type: string
+        description: "The asset version access is granted to"
+      - name: granting_company_id
+        sql: granting_company_id
+        type: string
+        description: "The company issuing the grant"
+      - name: recipient_username
+        sql: recipient_username
+        type: string
+        description: "The specific user receiving access (null if granted to a company)"
+      - name: recipient_company_id
+        sql: recipient_company_id
+        type: string
+        description: "The company receiving access (null if granted to a user)"
+      - name: grant_type
+        sql: grant_type
+        type: string
+        description: "Type of access granted (e.g. view, edit, admin)"
+      - name: granted_on
+        sql: granted_on
+        type: time
+        description: "Timestamp when the grant was created"

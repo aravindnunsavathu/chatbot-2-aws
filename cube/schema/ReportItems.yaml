@@ -1,0 +1,57 @@
+cubes:
+  - name: ReportItems
+    sql_table: fivebyfive.report_items
+    description: "Individual files or deliverable items included within a report package."
+
+    joins:
+      - name: Reports
+        sql: "{TABLE}.report_id = {Reports}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of report items"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: report_id
+        sql: report_id
+        type: string
+        description: "The report this item belongs to"
+      - name: created_by
+        sql: created_by
+        type: string
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: deleted_by
+        sql: deleted_by
+        type: string
+        description: "Username of who deleted this item"
+      - name: deleted_on
+        sql: deleted_on
+        type: time
+        description: "Timestamp when soft-deleted"
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: file_path
+        sql: file_path
+        type: string
+        description: "Storage path to this report item file"
+      - name: file_type
+        sql: file_type
+        type: string
+        description: "Type/format of this file"
+      - name: is_deleted
+        sql: is_deleted
+        type: boolean
+        description: "Whether this item has been soft-deleted"
+      - name: report_item_types
+        sql: report_item_types
+        type: string
+        description: "Array of type classifications for this item"

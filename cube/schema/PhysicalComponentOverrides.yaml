@@ -1,0 +1,71 @@
+cubes:
+  - name: PhysicalComponentOverrides
+    sql_table: fivebyfive.physical_component_overrides
+    description: "Company-specific overrides for physical component specifications. Allows companies to customize dimensions, weight, and other properties for their catalog."
+
+    joins:
+      - name: Companies
+        sql: "{TABLE}.company_id = {Companies}.id"
+        relationship: many_to_one
+      - name: PhysicalComponents
+        sql: "{TABLE}.physical_component_id = {PhysicalComponents}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of physical component overrides"
+
+    dimensions:
+      - name: physical_component_id
+        sql: physical_component_id
+        type: string
+        description: "The physical component being overridden"
+      - name: company_id
+        sql: company_id
+        type: string
+        description: "The company applying the override"
+      - name: is_excluded
+        sql: is_excluded
+        type: boolean
+        description: "Whether this company has excluded this component from their catalog"
+      - name: height_m
+        sql: height_m
+        type: number
+        description: "Overridden height in meters"
+      - name: width_m
+        sql: width_m
+        type: number
+        description: "Overridden width in meters"
+      - name: depth_m
+        sql: depth_m
+        type: number
+        description: "Overridden depth in meters"
+      - name: diameter_m
+        sql: diameter_m
+        type: number
+        description: "Overridden diameter in meters"
+      - name: sail_area_m
+        sql: sail_area_m
+        type: number
+        description: "Overridden wind sail area in square meters"
+      - name: weight_kg
+        sql: weight_kg
+        type: number
+        description: "Overridden weight in kilograms"
+      - name: component_description
+        sql: component_description
+        type: string
+        description: "Overridden description text"
+      - name: storage_service
+        sql: storage_service
+        type: string
+        description: "Storage service hosting the override files"
+      - name: spec_sheets
+        sql: spec_sheets
+        type: string
+        description: "Array of URLs to specification/datasheet documents"
+      - name: images
+        sql: images
+        type: string
+        description: "Array of URLs to component images"

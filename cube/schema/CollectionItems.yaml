@@ -1,0 +1,51 @@
+cubes:
+  - name: CollectionItems
+    sql_table: fivebyfive.collection_items
+    description: "Files included within a collection, with ordering support."
+
+    joins:
+      - name: Collections
+        sql: "{TABLE}.collection_id = {Collections}.id"
+        relationship: many_to_one
+      - name: Files
+        sql: "{TABLE}.file_id = {Files}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of collection items"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: ddb_id
+        sql: ddb_id
+        type: string
+        description: "Legacy identifier from an external database"
+      - name: collection_id
+        sql: collection_id
+        type: string
+        description: "The collection this item belongs to"
+      - name: file_id
+        sql: file_id
+        type: string
+        description: "The file included in the collection"
+      - name: deleted_by
+        sql: deleted_by
+        type: string
+        description: "Username of who removed this item"
+      - name: deleted_on
+        sql: deleted_on
+        type: time
+        description: "Timestamp when soft-deleted"
+      - name: is_deleted
+        sql: is_deleted
+        type: boolean
+        description: "Whether this item has been soft-deleted"
+      - name: sort_index
+        sql: sort_index
+        type: number
+        description: "Ordering index for display within the collection"

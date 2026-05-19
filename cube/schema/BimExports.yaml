@@ -1,0 +1,60 @@
+cubes:
+  - name: BimExports
+    sql_table: fivebyfive.bim_exports
+    description: "Records of BIM (Building Information Model) data exports generated from a 3D model."
+
+    joins:
+      - name: Models
+        sql: "{TABLE}.model_id = {Models}.id"
+        relationship: many_to_one
+      - name: BimExportTasks
+        sql: "{TABLE}.task_id = {BimExportTasks}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of bim exports"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: ddb_id
+        sql: ddb_id
+        type: string
+        description: "Legacy identifier from an external database"
+      - name: model_id
+        sql: model_id
+        type: string
+        description: "The 3D model that was exported"
+      - name: created_by
+        sql: created_by
+        type: string
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: deleted_by
+        sql: deleted_by
+        type: string
+        description: "Username of the user who deleted this export"
+      - name: deleted_on
+        sql: deleted_on
+        type: time
+        description: "Timestamp when soft-deleted"
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: is_deleted
+        sql: is_deleted
+        type: boolean
+        description: "Whether this export record has been soft-deleted"
+      - name: task_id
+        sql: task_id
+        type: string
+        description: "The background processing task that generated this export"
+      - name: task_status
+        sql: task_status
+        type: string
+        description: "Current status of the export task"

@@ -1,0 +1,53 @@
+cubes:
+  - name: CadTasks
+    sql_table: fivebyfive.cad_tasks
+    description: "Background tasks for converting 3D model data to CAD formats (e.g. AutoCAD DXF/DWG)."
+
+    joins:
+      - name: Models
+        sql: "{TABLE}.model_id = {Models}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of cad tasks"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: autocad_id
+        sql: autocad_id
+        type: string
+        description: "External AutoCAD processing job identifier"
+      - name: completed_on
+        sql: completed_on
+        type: time
+        description: "Timestamp when the task completed"
+      - name: created_by
+        sql: created_by
+        type: string
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: error_message
+        sql: error_message
+        type: string
+      - name: model_id
+        sql: model_id
+        type: string
+        description: "The 3D model being converted"
+      - name: task_status
+        sql: task_status
+        type: string
+        description: "Current task status (e.g. pending, running, completed, failed)"
+      - name: report_content
+        sql: report_content
+        type: string
+        description: "JSON content of the conversion report"
+      - name: file_format
+        sql: file_format
+        type: string
+        description: "Output CAD file format (e.g. dxf, dwg)"

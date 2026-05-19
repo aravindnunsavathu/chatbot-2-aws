@@ -1,0 +1,28 @@
+cubes:
+  - name: AssetVersionNoteReaders
+    sql_table: fivebyfive.asset_version_note_readers
+    description: "Tracks which users have read a specific asset version note, for read-receipt functionality."
+
+    joins:
+      - name: AssetVersionNotes
+        sql: "{TABLE}.asset_version_note_id = {AssetVersionNotes}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of asset version note readers"
+
+    dimensions:
+      - name: asset_version_note_id
+        sql: asset_version_note_id
+        type: string
+        description: "The note that was read"
+      - name: username
+        sql: username
+        type: string
+        description: "The user who read it"
+      - name: created_on
+        sql: created_on
+        type: time
+        description: "Timestamp when the note was marked as read"

@@ -1,0 +1,40 @@
+cubes:
+  - name: TwistPlumbs
+    sql_table: fivebyfive.twist_plumbs
+    description: "Structural integrity measurements for a tower capturing plumb (lean) and twist (rotation) between two cross-sectional measurement loops. Used to assess if a tower is within tolerance."
+
+    joins:
+      - name: Measurements
+        sql: "{TABLE}.bottom_loop_id = {Measurements}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of twist plumbs"
+
+    dimensions:
+      - name: measurement_id
+        sql: measurement_id
+        type: string
+        description: "The measurement record this twist/plumb data belongs to"
+      - name: top_loop_id
+        sql: top_loop_id
+        type: string
+        description: "The upper cross-section measurement loop"
+      - name: bottom_loop_id
+        sql: bottom_loop_id
+        type: string
+        description: "The lower cross-section measurement loop"
+      - name: plumb_magnitude
+        sql: plumb_magnitude
+        type: number
+        description: "Magnitude of the tower lean (distance in meters)"
+      - name: plumb_bearing
+        sql: plumb_bearing
+        type: number
+        description: "Direction of the lean (compass bearing in degrees)"
+      - name: twist_degrees
+        sql: twist_degrees
+        type: number
+        description: "Amount of rotation between the two loops in degrees"

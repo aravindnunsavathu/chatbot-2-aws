@@ -1,0 +1,58 @@
+cubes:
+  - name: RevisionItems
+    sql_table: fivebyfive.revision_items
+    description: "Individual volume placements or changes within a design revision. Each item represents an equipment action (add/remove/modify) with a construction status."
+
+    joins:
+      - name: Areas
+        sql: "{TABLE}.area_id = {Areas}.id"
+        relationship: many_to_one
+      - name: Volumes
+        sql: "{TABLE}.hidden_id = {Volumes}.id"
+        relationship: many_to_one
+      - name: Revisions
+        sql: "{TABLE}.revision_id = {Revisions}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of revision items"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: revision_id
+        sql: revision_id
+        type: string
+        description: "The revision this item belongs to"
+      - name: volume_id
+        sql: volume_id
+        type: string
+        description: "The volume being added, removed, or modified"
+      - name: action_type
+        sql: action_type
+        type: string
+        description: "The change action (e.g. add, remove, modify, retain)"
+      - name: parent_id
+        sql: parent_id
+        type: string
+        description: "The previous/existing volume being replaced (for modify actions)"
+      - name: hidden_id
+        sql: hidden_id
+        type: string
+        description: "A volume hidden by this revision item"
+      - name: modified_after_confirmation
+        sql: modified_after_confirmation
+        type: boolean
+        description: "Whether this item was changed after being confirmed"
+      - name: construction_status
+        sql: construction_status
+        type: string
+        description: "Physical construction state (e.g. proposed, under_construction, complete)"
+      - name: area_id
+        sql: area_id
+        type: string
+        description: "Associated area polygon for this revision item"

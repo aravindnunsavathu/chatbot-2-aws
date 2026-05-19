@@ -1,0 +1,40 @@
+cubes:
+  - name: MeasurementSegments
+    sql_table: fivebyfive.measurement_segments
+    description: "Individual line segments that make up a multi-point measurement, each defined by two 3D endpoints."
+
+    joins:
+      - name: Measurements
+        sql: "{TABLE}.measurement_id = {Measurements}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of measurement segments"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: measurement_id
+        sql: measurement_id
+        type: string
+        description: "The measurement this segment belongs to"
+      - name: endpoint_1
+        sql: endpoint_1
+        type: string
+        description: "3D coordinates of the first endpoint"
+      - name: endpoint_2
+        sql: endpoint_2
+        type: string
+        description: "3D coordinates of the second endpoint"
+      - name: is_dynamic
+        sql: is_dynamic
+        type: boolean
+        description: "Whether this segment length updates dynamically"
+      - name: segment_length
+        sql: segment_length
+        type: number
+        description: "Length of this segment in meters"

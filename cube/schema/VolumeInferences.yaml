@@ -1,0 +1,114 @@
+cubes:
+  - name: VolumeInferences
+    sql_table: fivebyfive.volume_inferences
+    description: "AI/ML model predictions suggesting 3D volume placements for equipment on a structure, based on image analysis. These are candidate suggestions before being confirmed as actual volumes."
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of volume inferences"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: model_id
+        sql: model_id
+        type: string
+        description: "The 3D model these inferences are for"
+      - name: created_by
+        sql: created_by
+        type: string
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: equipment_id
+        sql: equipment_id
+        type: string
+        description: "Predicted physical component ID"
+      - name: is_preset
+        sql: is_preset
+        type: boolean
+        description: "Whether this is a system-created default inference"
+      - name: is_public
+        sql: is_public
+        type: boolean
+        description: "Whether visible to all users"
+      - name: labeler_equipment_id
+        sql: labeler_equipment_id
+        type: string
+        description: "Equipment ID assigned by the human labeler"
+      - name: last_edited_by
+        sql: last_edited_by
+        type: string
+      - name: last_edited_on
+        sql: last_edited_on
+        type: time
+      - name: position
+        sql: position
+        type: string
+        description: "Predicted 3D position in model space"
+      - name: qa_equipment_id
+        sql: qa_equipment_id
+        type: string
+        description: "Equipment ID confirmed by QA review"
+      - name: rotation
+        sql: rotation
+        type: string
+        description: "Predicted rotation (x, y, z) in degrees"
+      - name: rotation_order
+        sql: rotation_order
+        type: string
+        description: "Order in which rotation axes are applied (e.g. XYZ)"
+      - name: scale
+        sql: scale
+        type: string
+        description: "Predicted scale factor"
+      - name: selected_inference_equipment
+        sql: selected_inference_equipment
+        type: boolean
+        description: "The final selected equipment after review"
+      - name: volume_type
+        sql: volume_type
+        type: string
+        description: "Type of volume being inferred (e.g. antenna, mount, cable)"
+      - name: center_height
+        sql: center_height
+        type: number
+        description: "Height of the center of the volume above ground in meters"
+      - name: dimension_1
+        sql: dimension_1
+        type: number
+        description: "First dimension of the inferred volume"
+      - name: dimension_2
+        sql: dimension_2
+        type: number
+        description: "Second dimension of the inferred volume"
+      - name: dimension_3
+        sql: dimension_3
+        type: number
+        description: "Third dimension of the inferred volume"
+      - name: downtilt
+        sql: downtilt
+        type: number
+        description: "Predicted mechanical downtilt angle in degrees"
+      - name: roll
+        sql: roll
+        type: number
+        description: "Predicted roll angle in degrees"
+      - name: azimuth
+        sql: azimuth
+        type: number
+        description: "Predicted compass bearing/azimuth in degrees"
+      - name: aiml_model_name
+        sql: aiml_model_name
+        type: string
+        description: "Name of the AI/ML model that generated this inference"
+      - name: aiml_model_version
+        sql: aiml_model_version
+        type: string
+        description: "Version of the AI/ML model"

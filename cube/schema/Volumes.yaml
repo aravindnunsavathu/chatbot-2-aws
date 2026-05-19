@@ -1,0 +1,170 @@
+cubes:
+  - name: Volumes
+    sql_table: fivebyfive.volumes
+    description: "3D volumetric objects placed within a 3D model representing physical equipment (antennas, mounts, cables, brackets, etc.). Each volume links to the physical component catalog and has full spatial attributes. The core entity for tower inventory."
+
+    joins:
+      - name: Apertures
+        sql: "{TABLE}.aperture_id = {Apertures}.id"
+        relationship: many_to_one
+      - name: Models
+        sql: "{TABLE}.model_id = {Models}.id"
+        relationship: many_to_one
+      - name: Measurements
+        sql: "{TABLE}.parent_measurement_id = {Measurements}.id"
+        relationship: many_to_one
+      - name: PhysicalComponents
+        sql: "{TABLE}.physical_component_id = {PhysicalComponents}.id"
+        relationship: many_to_one
+      - name: PhysicalComponentModels
+        sql: "{TABLE}.physical_component_model_id = {PhysicalComponentModels}.id"
+        relationship: many_to_one
+      - name: Tenants
+        sql: "{TABLE}.tenant_id = {Tenants}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of volumes"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: ddb_id
+        sql: ddb_id
+        type: string
+        description: "Legacy identifier from an external database"
+      - name: model_id
+        sql: model_id
+        type: string
+        description: "The 3D model this volume is placed in"
+      - name: created_by
+        sql: created_by
+        type: string
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: equipment_id
+        sql: equipment_id
+        type: string
+        description: "The physical component catalog entry this volume represents"
+      - name: is_preset
+        sql: is_preset
+        type: boolean
+        description: "Whether this is a system-created default volume"
+      - name: is_public
+        sql: is_public
+        type: boolean
+        description: "Whether visible to all users with model access"
+      - name: labeler_equipment_id
+        sql: labeler_equipment_id
+        type: string
+        description: "Equipment ID as identified by the human labeler"
+      - name: last_edited_by
+        sql: last_edited_by
+        type: string
+      - name: last_edited_on
+        sql: last_edited_on
+        type: time
+      - name: position
+        sql: position
+        type: string
+        description: "3D position (x, y, z) of the volume center in model space"
+      - name: qa_equipment_id
+        sql: qa_equipment_id
+        type: string
+        description: "Equipment ID as confirmed by QA review"
+      - name: rotation
+        sql: rotation
+        type: string
+        description: "Rotation angles (x, y, z) of the volume in degrees"
+      - name: rotation_order
+        sql: rotation_order
+        type: string
+        description: "Order in which rotation axes are applied"
+      - name: scale
+        sql: scale
+        type: string
+        description: "Scale factors applied to the volume dimensions"
+      - name: selected_inference_equipment
+        sql: selected_inference_equipment
+        type: boolean
+        description: "Final selected equipment after inference review"
+      - name: volume_type
+        sql: volume_type
+        type: string
+        description: "Category of volume (e.g. antenna, mount, cable, power, structure)"
+      - name: center_height
+        sql: center_height
+        type: number
+        description: "Height of the volume center above ground in meters"
+      - name: dimension_1
+        sql: dimension_1
+        type: number
+        description: "Primary dimension of the volume"
+      - name: dimension_2
+        sql: dimension_2
+        type: number
+        description: "Secondary dimension of the volume"
+      - name: dimension_3
+        sql: dimension_3
+        type: number
+        description: "Tertiary dimension of the volume"
+      - name: downtilt
+        sql: downtilt
+        type: number
+        description: "Mechanical downtilt angle of the equipment in degrees"
+      - name: roll
+        sql: roll
+        type: number
+        description: "Roll angle of the equipment in degrees"
+      - name: azimuth
+        sql: azimuth
+        type: number
+        description: "Compass bearing/azimuth the equipment faces in degrees"
+      - name: tenant_id
+        sql: tenant_id
+        type: string
+        description: "Tenant scoping for this volume"
+      - name: aperture_id
+        sql: aperture_id
+        type: string
+        description: "Associated aperture if this volume passes through an opening"
+      - name: physical_component_id
+        sql: physical_component_id
+        type: string
+        description: "The physical component catalog entry"
+      - name: physical_component_parameters
+        sql: physical_component_parameters
+        type: string
+        description: "JSON object of parameter values for parametric components"
+      - name: installation_status
+        sql: installation_status
+        type: string
+        description: "Status of physical installation (e.g. installed, proposed, removed)"
+      - name: built_from_design
+        sql: built_from_design
+        type: string
+        description: "Whether this volume was placed based on a design revision"
+      - name: physical_component_model_id
+        sql: physical_component_model_id
+        type: string
+        description: "Specific 3D model variant of the physical component"
+      - name: parent_measurement_id
+        sql: parent_measurement_id
+        type: string
+        description: "Parent measurement group this volume belongs to"
+      - name: has_level
+        sql: has_level
+        type: boolean
+        description: "Whether this volume has a level/elevation reference"
+      - name: parent_group
+        sql: parent_group
+        type: string
+        description: "Display group name for organizational purposes"

@@ -1,0 +1,71 @@
+cubes:
+  - name: Files
+    sql_table: fivebyfive.files
+    description: "Files (images, documents, PDFs, etc.) uploaded and attached to a 3D model for reference."
+
+    joins:
+      - name: Models
+        sql: "{TABLE}.model_id = {Models}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of files"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: ddb_id
+        sql: ddb_id
+        type: string
+        description: "Legacy identifier from an external database"
+      - name: model_id
+        sql: model_id
+        type: string
+        description: "The 3D model this file is attached to"
+      - name: created_by
+        sql: created_by
+        type: string
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: deleted_by
+        sql: deleted_by
+        type: string
+        description: "Username of who deleted this file"
+      - name: deleted_on
+        sql: deleted_on
+        type: time
+        description: "Timestamp when soft-deleted"
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: file_path
+        sql: file_path
+        type: string
+        description: "Storage path to the file"
+      - name: file_type
+        sql: file_type
+        type: string
+        description: "MIME type or file extension (e.g. image/jpeg, application/pdf)"
+      - name: is_deleted
+        sql: is_deleted
+        type: boolean
+        description: "Whether this file has been soft-deleted"
+      - name: is_preset
+        sql: is_preset
+        type: boolean
+        description: "Whether this is a system-provided default file"
+      - name: is_public
+        sql: is_public
+        type: boolean
+        description: "Whether this file is visible to all users with model access"
+      - name: last_edited_by
+        sql: last_edited_by
+        type: string
+      - name: last_edited_on
+        sql: last_edited_on
+        type: time

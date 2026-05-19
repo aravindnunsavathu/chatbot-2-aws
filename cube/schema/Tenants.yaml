@@ -1,0 +1,28 @@
+cubes:
+  - name: Tenants
+    sql_table: fivebyfive.tenants
+    description: "Represents a tenant relationship between companies, enabling multi-tenant data sharing where a parent company grants a tenant company access to shared data."
+
+    joins:
+      - name: Companies
+        sql: "{TABLE}.parent_company_id = {Companies}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of tenants"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: parent_company_id
+        sql: parent_company_id
+        type: string
+        description: "The company that owns/hosts the tenanted data"
+      - name: tenant_company_id
+        sql: tenant_company_id
+        type: string
+        description: "The company that is the tenant (consuming the data)"

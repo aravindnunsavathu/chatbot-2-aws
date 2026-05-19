@@ -1,0 +1,60 @@
+cubes:
+  - name: MatchedVolumes
+    sql_table: fivebyfive.matched_volumes
+    description: "Links physically equivalent volumes across different asset versions for change detection and comparison over time."
+
+    joins:
+      - name: AssetVersions
+        sql: "{TABLE}.current_asset_version_id = {AssetVersions}.id"
+        relationship: many_to_one
+      - name: Volumes
+        sql: "{TABLE}.current_volume_id = {Volumes}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of matched volumes"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: current_volume_id
+        sql: current_volume_id
+        type: string
+        description: "The volume in the current/newer asset version"
+      - name: matched_to_volume_id
+        sql: matched_to_volume_id
+        type: string
+        description: "The corresponding volume in the older asset version"
+      - name: current_asset_version_id
+        sql: current_asset_version_id
+        type: string
+        description: "The newer asset version"
+      - name: matched_to_asset_version_id
+        sql: matched_to_asset_version_id
+        type: string
+        description: "The older asset version being compared to"
+      - name: match_type
+        sql: match_type
+        type: string
+        description: "How the match was determined (e.g. automatic, manual)"
+      - name: match_rating
+        sql: match_rating
+        type: number
+        description: "Confidence score for the match (0-1)"
+      - name: confirmation_status
+        sql: confirmation_status
+        type: string
+        description: "Whether the match has been confirmed by a user"
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: last_edited_by
+        sql: last_edited_by
+        type: string
+      - name: last_edited_on
+        sql: last_edited_on
+        type: time

@@ -1,0 +1,50 @@
+cubes:
+  - name: AssetApiEvents
+    sql_table: fivebyfive.asset_api_events
+    description: "Audit log of API-triggered events recording asset version status changes (packaging and processing status transitions)."
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of asset api events"
+
+    dimensions:
+      - name: event_id
+        sql: event_id
+        type: string
+        description: "Unique event identifier"
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: organizations
+        sql: organizations
+        type: string
+        description: "List of organization IDs associated with this event"
+      - name: asset_version_id
+        sql: asset_version_id
+        type: string
+        description: "The asset version whose status changed"
+      - name: old_packaging_status
+        sql: old_packaging_status
+        type: string
+        description: "Packaging status before the event"
+      - name: new_packaging_status
+        sql: new_packaging_status
+        type: string
+        description: "Packaging status after the event"
+      - name: old_processing_status
+        sql: old_processing_status
+        type: string
+        description: "Processing status before the event"
+      - name: new_processing_status
+        sql: new_processing_status
+        type: string
+        description: "Processing status after the event"
+      - name: processed
+        sql: processed
+        type: boolean
+        description: "Whether this event has been consumed/processed"
+      - name: read_by
+        sql: read_by
+        type: string
+        description: "List of systems or users that have read this event"

@@ -1,0 +1,63 @@
+cubes:
+  - name: GroundSpaces
+    sql_table: fivebyfive.ground_spaces
+    description: "Ground-level polygon regions within a 3D model, representing the footprint or base area around a structure."
+
+    joins:
+      - name: Models
+        sql: "{TABLE}.model_id = {Models}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of ground spaces"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: ddb_id
+        sql: ddb_id
+        type: string
+        description: "Legacy identifier from an external database"
+      - name: model_id
+        sql: model_id
+        type: string
+        description: "The 3D model this ground space belongs to"
+      - name: created_by
+        sql: created_by
+        type: string
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: ground_plane_offset
+        sql: ground_plane_offset
+        type: number
+        description: "Vertical offset from the ground plane in meters"
+      - name: is_preset
+        sql: is_preset
+        type: boolean
+        description: "Whether this is a system-created default ground space"
+      - name: is_public
+        sql: is_public
+        type: boolean
+        description: "Whether visible to all users with model access"
+      - name: last_edited_by
+        sql: last_edited_by
+        type: string
+      - name: last_edited_on
+        sql: last_edited_on
+        type: time
+      - name: points
+        sql: points
+        type: string
+        description: "Array of 3D points defining the outline"
+      - name: polygons
+        sql: polygons
+        type: string
+        description: "Array of polygon definitions within this ground space"

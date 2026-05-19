@@ -1,0 +1,28 @@
+cubes:
+  - name: FavoriteAssets
+    sql_table: fivebyfive.favorite_assets
+    description: "Tracks which assets individual users have bookmarked as favorites for quick access."
+
+    joins:
+      - name: Assets
+        sql: "{TABLE}.asset_id = {Assets}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of favorite assets"
+
+    dimensions:
+      - name: asset_id
+        sql: asset_id
+        type: string
+        description: "The favorited asset"
+      - name: username
+        sql: username
+        type: string
+        description: "The user who favorited it"
+      - name: created_on
+        sql: created_on
+        type: time
+        description: "Timestamp when the favorite was added"

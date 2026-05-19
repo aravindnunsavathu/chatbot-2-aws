@@ -1,0 +1,78 @@
+cubes:
+  - name: Sketches
+    sql_table: fivebyfive.sketches
+    description: "2D drawings created on a reference plane within a 3D model, containing shapes, annotations, measurements, and labels."
+
+    joins:
+      - name: Models
+        sql: "{TABLE}.model_id = {Models}.id"
+        relationship: many_to_one
+      - name: Planes
+        sql: "{TABLE}.plane_id = {Planes}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of sketches"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: ddb_id
+        sql: ddb_id
+        type: string
+        description: "Legacy identifier from an external database"
+      - name: model_id
+        sql: model_id
+        type: string
+        description: "The 3D model this sketch belongs to"
+      - name: plane_id
+        sql: plane_id
+        type: string
+        description: "The reference plane this sketch is drawn on"
+      - name: created_by
+        sql: created_by
+        type: string
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: is_preset
+        sql: is_preset
+        type: boolean
+        description: "Whether this is a system-created default sketch"
+      - name: is_public
+        sql: is_public
+        type: boolean
+        description: "Whether visible to all users with model access"
+      - name: labels
+        sql: labels
+        type: string
+        description: "JSON array of text label annotations"
+      - name: last_edited_by
+        sql: last_edited_by
+        type: string
+      - name: last_edited_on
+        sql: last_edited_on
+        type: time
+      - name: measurements
+        sql: measurements
+        type: string
+        description: "JSON array of measurement annotations on this sketch"
+      - name: points
+        sql: points
+        type: string
+        description: "JSON array of point annotations on this sketch"
+      - name: shapes
+        sql: shapes
+        type: string
+        description: "JSON array of shape objects (lines, polygons, circles) drawn"
+      - name: sketch_type
+        sql: sketch_type
+        type: string
+        description: "Type of sketch (e.g. floor_plan, elevation, detail)"

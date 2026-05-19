@@ -1,0 +1,80 @@
+cubes:
+  - name: Assets
+    sql_table: fivebyfive.assets
+    description: "Physical infrastructure assets (e.g. cell towers, monopoles, rooftops) located at a site. Each asset has a type, structural classification, and geographic coordinates."
+
+    joins:
+      - name: Sites
+        sql: "{TABLE}.site_id = {Sites}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of assets"
+      - name: avg_base_elevation
+        sql: asset_base_land_elevation_m
+        type: avg
+        description: "Average base elevation in meters"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: display_id
+        sql: display_id
+        type: string
+        description: "Human-readable identifier for the asset"
+      - name: asset_name
+        sql: asset_name
+        type: string
+        description: "Name of the asset"
+      - name: asset_type
+        sql: asset_type
+        type: string
+        description: "Type of asset (e.g. tower, monopole, rooftop, small cell)"
+      - name: latitude
+        sql: latitude
+        type: number
+        description: "Geographic latitude of the asset"
+      - name: longitude
+        sql: longitude
+        type: number
+        description: "Geographic longitude of the asset"
+      - name: structure_type
+        sql: structure_type
+        type: string
+        description: "Structural classification of the asset"
+      - name: asset_label
+        sql: asset_label
+        type: string
+        description: "Short label/code for the asset"
+      - name: asset_index
+        sql: asset_index
+        type: string
+        description: "Index used for ordering assets at a site"
+      - name: structure_label
+        sql: structure_label
+        type: string
+        description: "Label for the structure type"
+      - name: asset_base_land_elevation_m
+        sql: asset_base_land_elevation_m
+        type: number
+        description: "Elevation of the base of the asset above sea level in meters"
+      - name: low_voltage_power_distance_m
+        sql: low_voltage_power_distance_m
+        type: number
+        description: "Distance to nearest low voltage power source in meters"
+      - name: has_fiber_joint
+        sql: has_fiber_joint
+        type: boolean
+        description: "Whether the asset has a fiber joint connection"
+      - name: nearest_fiber_joint_m
+        sql: nearest_fiber_joint_m
+        type: number
+        description: "Distance to the nearest fiber joint in meters"
+      - name: site_id
+        sql: site_id
+        type: string
+        description: "The site where this asset is located"

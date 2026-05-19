@@ -1,0 +1,52 @@
+cubes:
+  - name: Reports
+    sql_table: fivebyfive.reports
+    description: "Inspection or analysis reports ordered by a company, compiled from files and delivered to customers."
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of reports"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: created_by
+        sql: created_by
+        type: string
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: delivered_on
+        sql: delivered_on
+        type: time
+        description: "Timestamp when the report was delivered to the customer"
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: ordered_on
+        sql: ordered_on
+        type: time
+        description: "Timestamp when the report was ordered"
+      - name: request_details
+        sql: request_details
+        type: string
+        description: "JSON object with details of what was requested"
+      - name: requested_by_company
+        sql: requested_by_company
+        type: string
+        description: "Name of the company that requested the report"
+      - name: requested_by_username
+        sql: requested_by_username
+        type: string
+        description: "Username of the person who requested the report"
+      - name: total_asset_count
+        sql: total_asset_count
+        type: number
+        description: "Total number of assets included in the report"
+      - name: unique_asset_count
+        sql: unique_asset_count
+        type: number
+        description: "Number of unique assets (deduplicated) in the report"

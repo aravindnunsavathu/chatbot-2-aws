@@ -1,0 +1,55 @@
+cubes:
+  - name: Areas
+    sql_table: fivebyfive.areas
+    description: "Polygon areas drawn within a 3D model to mark zones or regions on a structure. Defined by an ordered list of 3D points."
+
+    joins:
+      - name: Models
+        sql: "{TABLE}.model_id = {Models}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of areas"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: model_id
+        sql: model_id
+        type: string
+        description: "The 3D model this area belongs to"
+      - name: created_by
+        sql: created_by
+        type: string
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: is_preset
+        sql: is_preset
+        type: boolean
+        description: "True if this area was created by the system as a default/preset"
+      - name: is_public
+        sql: is_public
+        type: boolean
+        description: "True if this area is visible to all users with model access"
+      - name: last_edited_by
+        sql: last_edited_by
+        type: string
+      - name: last_edited_on
+        sql: last_edited_on
+        type: time
+      - name: ordered_points
+        sql: ordered_points
+        type: string
+        description: "Array of 3D coordinates defining the polygon boundary"
+      - name: area_m
+        sql: area_m
+        type: number
+        description: "Calculated area in square meters"

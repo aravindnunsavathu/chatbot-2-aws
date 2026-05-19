@@ -1,0 +1,32 @@
+cubes:
+  - name: Weblinks
+    sql_table: fivebyfive.weblinks
+    description: "External URLs attached to an asset version for quick reference to related web resources."
+
+    joins:
+      - name: AssetVersions
+        sql: "{TABLE}.asset_version_id = {AssetVersions}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of weblinks"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: asset_version_id
+        sql: asset_version_id
+        type: string
+        description: "The asset version this link is attached to"
+      - name: link_text
+        sql: link_text
+        type: string
+        description: "Display label for the URL"
+      - name: link_url
+        sql: link_url
+        type: string
+        description: "The full URL of the external resource"

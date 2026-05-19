@@ -1,0 +1,70 @@
+cubes:
+  - name: Apertures
+    sql_table: fivebyfive.apertures
+    description: "Physical openings or penetrations in a structure (e.g. cable ports, conduit entries, waveguide openings). Used to model and track routing paths through a structure."
+
+    joins:
+      - name: Companies
+        sql: "{TABLE}.owner_company_id = {Companies}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of apertures"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: description
+        sql: description
+        type: string
+      - name: aperture_type
+        sql: aperture_type
+        type: string
+        description: "Type of aperture (e.g. conduit, waveguide, cable port)"
+      - name: images_url
+        sql: images_url
+        type: string
+        description: "Array of image URLs showing this aperture"
+      - name: owner_company_id
+        sql: owner_company_id
+        type: string
+        description: "Company that owns or manages this aperture definition"
+      - name: height_m
+        sql: height_m
+        type: number
+        description: "Height of the aperture in meters"
+      - name: width_m
+        sql: width_m
+        type: number
+        description: "Width of the aperture in meters"
+      - name: depth_m
+        sql: depth_m
+        type: number
+        description: "Depth of the aperture in meters"
+      - name: area_m
+        sql: area_m
+        type: number
+        description: "Cross-sectional area in square meters"
+      - name: volume_m
+        sql: volume_m
+        type: number
+        description: "Volume in cubic meters"
+      - name: weight_kg
+        sql: weight_kg
+        type: number
+        description: "Weight in kilograms"
+      - name: wind_load_n
+        sql: wind_load_n
+        type: number
+        description: "Wind load in Newtons"
+      - name: diameter_m
+        sql: diameter_m
+        type: number
+        description: "Diameter in meters (for circular apertures)"

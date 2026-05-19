@@ -1,0 +1,182 @@
+cubes:
+  - name: PagedSites
+    sql_table: fivebyfive.paged_sites
+    description: "Denormalized view combining site, asset, and asset version data for efficient paginated site listing and search. Contains both internal and external (third-party) parallel asset version fields. Not a raw table — used for site browsing queries."
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of paged sites"
+
+    dimensions:
+      - name: s_id
+        sql: s_id
+        type: string
+        description: "Site ID"
+      - name: s_site_name
+        sql: s_site_name
+        type: string
+        description: "Site name"
+      - name: s_display_id
+        sql: s_display_id
+        type: string
+        description: "Site display identifier"
+      - name: s_address_region
+        sql: s_address_region
+        type: string
+        description: "Geographic region of the site"
+      - name: s_longitude
+        sql: s_longitude
+        type: number
+        description: "Site longitude"
+      - name: s_latitude
+        sql: s_latitude
+        type: number
+        description: "Site latitude"
+      - name: s_address_state
+        sql: s_address_state
+        type: string
+        description: "State/province of the site"
+      - name: a_id
+        sql: a_id
+        type: string
+        description: "Asset ID"
+      - name: a_asset_type
+        sql: a_asset_type
+        type: string
+        description: "Type of the asset"
+      - name: a_asset_label
+        sql: a_asset_label
+        type: string
+        description: "Asset label/code"
+      - name: a_structure_type
+        sql: a_structure_type
+        type: string
+        description: "Structural classification of the asset"
+      - name: av_packaging_status
+        sql: av_packaging_status
+        type: string
+        description: "Asset version packaging status (internal)"
+      - name: av_last_approved_by
+        sql: av_last_approved_by
+        type: string
+        description: "Last approver (internal)"
+      - name: av_height
+        sql: av_height
+        type: string
+        description: "Structure height (internal version)"
+      - name: av_capture_date
+        sql: av_capture_date
+        type: string
+        description: "Capture date (internal version)"
+      - name: av_asset_owner
+        sql: av_asset_owner
+        type: string
+        description: "Asset owner (internal version)"
+      - name: av_last_approved_date
+        sql: av_last_approved_date
+        type: string
+      - name: av_project_name
+        sql: av_project_name
+        type: string
+      - name: av_last_analyst
+        sql: av_last_analyst
+        type: string
+      - name: av_base_model_id
+        sql: av_base_model_id
+        type: string
+        description: "Base model ID (internal version)"
+      - name: av_id
+        sql: av_id
+        type: string
+        description: "Asset version ID (internal)"
+      - name: av_company_rights
+        sql: av_company_rights
+        type: string
+        description: "Company access rights for internal version"
+      - name: s_site_owner_id
+        sql: s_site_owner_id
+        type: string
+        description: "Company that owns this site"
+      - name: s_address_street
+        sql: s_address_street
+        type: string
+        description: "Street address of the site"
+      - name: a_display_id
+        sql: a_display_id
+        type: string
+        description: "Asset display identifier"
+      - name: av_last_assigned_date
+        sql: av_last_assigned_date
+        type: string
+      - name: av_packaging_status_external
+        sql: av_packaging_status_external
+        type: string
+        description: "Asset version packaging status (external/third-party version)"
+      - name: av_last_approved_by_external
+        sql: av_last_approved_by_external
+        type: string
+      - name: av_height_external
+        sql: av_height_external
+        type: string
+      - name: av_capture_date_external
+        sql: av_capture_date_external
+        type: string
+      - name: av_asset_owner_external
+        sql: av_asset_owner_external
+        type: string
+      - name: av_last_approved_date_external
+        sql: av_last_approved_date_external
+        type: string
+      - name: av_project_name_external
+        sql: av_project_name_external
+        type: string
+      - name: av_last_analyst_external
+        sql: av_last_analyst_external
+        type: string
+      - name: av_last_assigned_date_external
+        sql: av_last_assigned_date_external
+        type: string
+      - name: av_base_model_id_external
+        sql: av_base_model_id_external
+        type: string
+      - name: av_id_external
+        sql: av_id_external
+        type: string
+        description: "Asset version ID (external)"
+      - name: av_company_rights_external
+        sql: av_company_rights_external
+        type: string
+        description: "Company access rights for external version"
+      - name: a_id_external
+        sql: a_id_external
+        type: string
+        description: "Asset ID for external version"
+      - name: a_asset_type_external
+        sql: a_asset_type_external
+        type: string
+      - name: a_asset_label_external
+        sql: a_asset_label_external
+        type: string
+      - name: a_display_id_external
+        sql: a_display_id_external
+        type: string
+      - name: a_structure_type_external
+        sql: a_structure_type_external
+        type: string
+      - name: av_active
+        sql: av_active
+        type: boolean
+        description: "Whether the internal asset version is active"
+      - name: av_released
+        sql: av_released
+        type: boolean
+        description: "Whether the internal asset version is released"
+      - name: av_active_external
+        sql: av_active_external
+        type: boolean
+        description: "Whether the external asset version is active"
+      - name: av_released_external
+        sql: av_released_external
+        type: boolean
+        description: "Whether the external asset version is released"

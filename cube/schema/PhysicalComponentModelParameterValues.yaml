@@ -1,0 +1,35 @@
+cubes:
+  - name: PhysicalComponentModelParameterValues
+    sql_table: fivebyfive.physical_component_model_parameter_values
+    description: "Actual parameter values for a specific volume's physical component 3D model (e.g. the tilt angle set for a parametric antenna model)."
+
+    joins:
+      - name: PhysicalComponentModelParameters
+        sql: "{TABLE}.physical_component_model_parameter_id = {PhysicalComponentModelParameters}.id"
+        relationship: many_to_one
+      - name: Volumes
+        sql: "{TABLE}.volume_id = {Volumes}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of physical component model parameter values"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: physical_component_model_parameter_id
+        sql: physical_component_model_parameter_id
+        type: string
+        description: "The parameter definition this value is for"
+      - name: volume_id
+        sql: volume_id
+        type: string
+        description: "The volume instance this parameter value applies to"
+      - name: value
+        sql: value
+        type: string
+        description: "The parameter value"

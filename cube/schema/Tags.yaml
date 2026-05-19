@@ -1,0 +1,31 @@
+cubes:
+  - name: Tags
+    sql_table: fivebyfive.tags
+    description: "Tag definitions with categories and display types, used as a taxonomy for labeling entities (volumes, points, measurements, etc.)."
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of tags"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: category
+        sql: category
+        type: string
+        description: "High-level category this tag belongs to"
+      - name: display_type
+        sql: display_type
+        type: string
+        description: "How this tag is rendered in the UI (e.g. badge, icon, label)"
+      - name: tag_value
+        sql: tag_value
+        type: string
+        description: "The tag value or label text"
+      - name: show_header
+        sql: show_header
+        type: boolean
+        description: "Whether to show a header for this tag category in the UI"

@@ -1,0 +1,38 @@
+cubes:
+  - name: AssetVersionNotes
+    sql_table: fivebyfive.asset_version_notes
+    description: "Text notes or comments added to an asset version by analysts or reviewers."
+
+    joins:
+      - name: AssetVersions
+        sql: "{TABLE}.asset_version_id = {AssetVersions}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of asset version notes"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: ddb_id
+        sql: ddb_id
+        type: string
+        description: "Legacy identifier from an external database (DynamoDB)"
+      - name: asset_version_id
+        sql: asset_version_id
+        type: string
+        description: "The asset version this note is attached to"
+      - name: created_by
+        sql: created_by
+        type: string
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: text_content
+        sql: text_content
+        type: string
+        description: "The note text content"

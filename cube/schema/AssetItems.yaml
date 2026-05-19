@@ -1,0 +1,45 @@
+cubes:
+  - name: AssetItems
+    sql_table: fivebyfive.asset_items
+    description: "Hierarchical bill-of-materials entries within an asset, linking physical components to an asset. Supports nested parent-child relationships."
+
+    joins:
+      - name: Assets
+        sql: "{TABLE}.asset_id = {Assets}.id"
+        relationship: many_to_one
+      - name: AssetItems
+        sql: "{TABLE}.parent_asset_item_id = {AssetItems}.id"
+        relationship: many_to_one
+      - name: PhysicalComponents
+        sql: "{TABLE}.physical_component_id = {PhysicalComponents}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of asset items"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: asset_id
+        sql: asset_id
+        type: string
+        description: "The asset this item belongs to"
+      - name: physical_component_id
+        sql: physical_component_id
+        type: string
+        description: "The physical component catalog entry for this item"
+      - name: parent_asset_item_id
+        sql: parent_asset_item_id
+        type: string
+        description: "Parent item for hierarchical grouping (null if top-level)"
+      - name: item_attributes
+        sql: item_attributes
+        type: string
+        description: "JSON object of additional attributes for this item"
+      - name: display_name
+        sql: display_name
+        type: string

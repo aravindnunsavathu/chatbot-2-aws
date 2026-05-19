@@ -1,0 +1,31 @@
+cubes:
+  - name: ReportCompanyAccessRights
+    sql_table: fivebyfive.report_company_access_rights
+    description: "Controls which companies have access to view a specific report."
+
+    joins:
+      - name: Companies
+        sql: "{TABLE}.company_id = {Companies}.id"
+        relationship: many_to_one
+      - name: Reports
+        sql: "{TABLE}.report_id = {Reports}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of report company access rights"
+
+    dimensions:
+      - name: company_id
+        sql: company_id
+        type: string
+        description: "The company being granted access"
+      - name: report_id
+        sql: report_id
+        type: string
+        description: "The report being accessed"
+      - name: granted_on
+        sql: granted_on
+        type: time
+        description: "Timestamp when access was granted"

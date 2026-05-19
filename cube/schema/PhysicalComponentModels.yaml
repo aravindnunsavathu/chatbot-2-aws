@@ -1,0 +1,48 @@
+cubes:
+  - name: PhysicalComponentModels
+    sql_table: fivebyfive.physical_component_models
+    description: "3D model files (e.g. IFC, OBJ, FBX, GLB) representing a physical component, owned by a specific company."
+
+    joins:
+      - name: Companies
+        sql: "{TABLE}.company_id = {Companies}.id"
+        relationship: many_to_one
+      - name: PhysicalComponents
+        sql: "{TABLE}.physical_component_id = {PhysicalComponents}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of physical component models"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: physical_component_id
+        sql: physical_component_id
+        type: string
+        description: "The physical component catalog entry this model represents"
+      - name: company_id
+        sql: company_id
+        type: string
+        description: "The company that owns this 3D model"
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: format
+        sql: format
+        type: string
+        description: "File format of the 3D model (e.g. ifc, obj, fbx, glb)"
+      - name: file_path
+        sql: file_path
+        type: string
+        description: "Storage path to the 3D model file"
+      - name: created_by
+        sql: created_by
+        type: string
+      - name: created_on
+        sql: created_on
+        type: time

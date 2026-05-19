@@ -1,0 +1,27 @@
+cubes:
+  - name: CadTaskRevisions
+    sql_table: fivebyfive.cad_task_revisions
+    description: "Join table linking CAD export tasks to the specific revisions included in that export."
+
+    joins:
+      - name: CadTasks
+        sql: "{TABLE}.cad_task_id = {CadTasks}.id"
+        relationship: many_to_one
+      - name: Revisions
+        sql: "{TABLE}.revision_id = {Revisions}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of cad task revisions"
+
+    dimensions:
+      - name: cad_task_id
+        sql: cad_task_id
+        type: string
+        description: "The CAD export task"
+      - name: revision_id
+        sql: revision_id
+        type: string
+        description: "A revision included in this CAD export"

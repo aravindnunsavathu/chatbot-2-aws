@@ -1,0 +1,38 @@
+cubes:
+  - name: Companies
+    sql_table: fivebyfive.companies
+    description: "Organizations registered on the platform, including asset owners, operators, and drone service providers (DSPs)."
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of companies"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: aliases
+        sql: aliases
+        type: string
+        description: "Array of alternative names or codes for this company"
+      - name: is_capture_provider
+        sql: is_capture_provider
+        type: boolean
+        description: "Whether this company provides drone capture services (is a DSP)"
+      - name: customer_data
+        sql: customer_data
+        type: string
+        description: "JSON object with additional customer-specific metadata"
+      - name: restrictions
+        sql: restrictions
+        type: string
+        description: "JSON object defining what data this company is restricted from accessing"
+      - name: has_restriction_flag
+        sql: has_restriction_flag
+        type: boolean
+        description: "Whether any access restrictions are active for this company"

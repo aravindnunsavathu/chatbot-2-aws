@@ -1,0 +1,63 @@
+cubes:
+  - name: Planes
+    sql_table: fivebyfive.planes
+    description: "Reference planes within a 3D model, defined by three 3D points. Used as surfaces on which 2D sketches are drawn."
+
+    joins:
+      - name: Models
+        sql: "{TABLE}.model_id = {Models}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of planes"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: ddb_id
+        sql: ddb_id
+        type: string
+        description: "Legacy identifier from an external database"
+      - name: model_id
+        sql: model_id
+        type: string
+        description: "The 3D model this plane belongs to"
+      - name: created_by
+        sql: created_by
+        type: string
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: is_preset
+        sql: is_preset
+        type: boolean
+        description: "Whether this is a system-created default plane"
+      - name: is_public
+        sql: is_public
+        type: boolean
+        description: "Whether visible to all users with model access"
+      - name: last_edited_by
+        sql: last_edited_by
+        type: string
+      - name: last_edited_on
+        sql: last_edited_on
+        type: time
+      - name: point_1
+        sql: point_1
+        type: string
+        description: "First 3D point defining the plane"
+      - name: point_2
+        sql: point_2
+        type: string
+        description: "Second 3D point defining the plane"
+      - name: point_3
+        sql: point_3
+        type: string
+        description: "Third 3D point defining the plane"

@@ -1,0 +1,38 @@
+cubes:
+  - name: BimExportTasks
+    sql_table: fivebyfive.bim_export_tasks
+    description: "Background processing tasks for exporting BIM (Building Information Model) data from a model."
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of bim export tasks"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: ddb_id
+        sql: ddb_id
+        type: string
+        description: "Legacy identifier from an external database"
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: details
+        sql: details
+        type: string
+        description: "JSON object with export configuration and task details"
+      - name: forge_work_item_id
+        sql: forge_work_item_id
+        type: string
+        description: "Autodesk Forge work item ID for BIM processing"
+      - name: status_update_date
+        sql: status_update_date
+        type: time
+        description: "Timestamp of the last status change"
+      - name: task_status
+        sql: task_status
+        type: string
+        description: "Current task status (e.g. pending, running, completed, failed)"

@@ -1,0 +1,58 @@
+cubes:
+  - name: AssetVersionCustomFieldValues
+    sql_table: fivebyfive.asset_version_custom_field_values
+    description: "Typed custom field values for asset versions. Mirrors asset_custom_field_values but scoped to a specific asset version."
+
+    joins:
+      - name: AssetVersions
+        sql: "{TABLE}.asset_version_id = {AssetVersions}.id"
+        relationship: many_to_one
+      - name: AssetVersionCustomFields
+        sql: "{TABLE}.custom_field_id = {AssetVersionCustomFields}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of asset version custom field values"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: asset_version_id
+        sql: asset_version_id
+        type: string
+        description: "The asset version this value belongs to"
+      - name: custom_field_id
+        sql: custom_field_id
+        type: string
+        description: "The custom field definition this value is for"
+      - name: group_id
+        sql: group_id
+        type: string
+        description: "Optional grouping identifier for multi-value fields"
+      - name: unit
+        sql: unit
+        type: string
+        description: "Unit of measurement for numeric values"
+      - name: value_integer
+        sql: value_integer
+        type: number
+      - name: value_float
+        sql: value_float
+        type: number
+      - name: value_string
+        sql: value_string
+        type: string
+      - name: value_boolean
+        sql: value_boolean
+        type: boolean
+      - name: value_date
+        sql: value_date
+        type: time
+      - name: value_string_list
+        sql: value_string_list
+        type: string
+        description: "Array of string values for list-type fields"

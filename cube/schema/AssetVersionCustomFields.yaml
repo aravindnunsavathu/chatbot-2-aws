@@ -1,0 +1,55 @@
+cubes:
+  - name: AssetVersionCustomFields
+    sql_table: fivebyfive.asset_version_custom_fields
+    description: "Definitions of custom metadata fields for asset versions, defined per company."
+
+    joins:
+      - name: Companies
+        sql: "{TABLE}.company_id = {Companies}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of asset version custom fields"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: data_type
+        sql: data_type
+        type: string
+        description: "The data type of the field (e.g. string, integer, float, boolean, date)"
+      - name: input_type
+        sql: input_type
+        type: string
+        description: "UI input type (e.g. text, dropdown, checkbox)"
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: source_name
+        sql: source_name
+        type: string
+        description: "Internal/API name for the field"
+      - name: allowed_values
+        sql: allowed_values
+        type: string
+        description: "Array of permitted values for dropdown/list fields"
+      - name: company_id
+        sql: company_id
+        type: string
+        description: "The company that defined this custom field"
+      - name: is_editable
+        sql: is_editable
+        type: boolean
+        description: "Whether users can edit this field value"
+      - name: is_hidden
+        sql: is_hidden
+        type: boolean
+        description: "Whether this field is hidden from standard views"
+      - name: in_table
+        sql: in_table
+        type: boolean
+        description: "Whether this field appears in table/grid views"

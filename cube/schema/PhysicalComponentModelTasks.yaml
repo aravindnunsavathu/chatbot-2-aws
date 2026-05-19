@@ -1,0 +1,71 @@
+cubes:
+  - name: PhysicalComponentModelTasks
+    sql_table: fivebyfive.physical_component_model_tasks
+    description: "Background tasks for converting or processing physical component 3D model files into different formats."
+
+    joins:
+      - name: Companies
+        sql: "{TABLE}.company_id = {Companies}.id"
+        relationship: many_to_one
+      - name: PhysicalComponents
+        sql: "{TABLE}.physical_component_id = {PhysicalComponents}.id"
+        relationship: many_to_one
+      - name: PhysicalComponentModels
+        sql: "{TABLE}.physical_component_model_id = {PhysicalComponentModels}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of physical component model tasks"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: physical_component_id
+        sql: physical_component_id
+        type: string
+        description: "The physical component being processed"
+      - name: company_id
+        sql: company_id
+        type: string
+        description: "The company that owns this conversion task"
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: format
+        sql: format
+        type: string
+        description: "Target output file format"
+      - name: input_file_path
+        sql: input_file_path
+        type: string
+        description: "Storage path of the input file"
+      - name: output_file_path
+        sql: output_file_path
+        type: string
+        description: "Storage path of the processed output file"
+      - name: created_by
+        sql: created_by
+        type: string
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: physical_component_model_id
+        sql: physical_component_model_id
+        type: string
+        description: "The resulting physical component model record"
+      - name: status
+        sql: status
+        type: string
+        description: "Task status (e.g. pending, running, completed, failed)"
+      - name: error_message
+        sql: error_message
+        type: string
+        description: "Error details if the task failed"
+      - name: command
+        sql: command
+        type: string
+        description: "Processing command or configuration used"

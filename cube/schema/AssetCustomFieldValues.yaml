@@ -1,0 +1,58 @@
+cubes:
+  - name: AssetCustomFieldValues
+    sql_table: fivebyfive.asset_custom_field_values
+    description: "Typed custom field values for assets. Supports multiple value types — only one value column is populated per row depending on the field's data type."
+
+    joins:
+      - name: Assets
+        sql: "{TABLE}.asset_id = {Assets}.id"
+        relationship: many_to_one
+      - name: AssetCustomFields
+        sql: "{TABLE}.custom_field_id = {AssetCustomFields}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of asset custom field values"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: asset_id
+        sql: asset_id
+        type: string
+        description: "The asset this value belongs to"
+      - name: custom_field_id
+        sql: custom_field_id
+        type: string
+        description: "The custom field definition this value is for"
+      - name: group_id
+        sql: group_id
+        type: string
+        description: "Optional grouping identifier for multi-value fields"
+      - name: unit
+        sql: unit
+        type: string
+        description: "Unit of measurement for numeric values (e.g. meters, kg)"
+      - name: value_integer
+        sql: value_integer
+        type: number
+      - name: value_float
+        sql: value_float
+        type: number
+      - name: value_string
+        sql: value_string
+        type: string
+      - name: value_boolean
+        sql: value_boolean
+        type: boolean
+      - name: value_date
+        sql: value_date
+        type: time
+      - name: value_string_list
+        sql: value_string_list
+        type: string
+        description: "Array of string values for list-type fields"

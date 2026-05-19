@@ -1,0 +1,39 @@
+cubes:
+  - name: PhysicalComponentModelParameters
+    sql_table: fivebyfive.physical_component_model_parameters
+    description: "Parametric parameters defined for a physical component's 3D model (e.g. adjustable tilt angle, extension length). Each parameter can have a default value."
+
+    joins:
+      - name: PhysicalComponentModels
+        sql: "{TABLE}.physical_component_model_id = {PhysicalComponentModels}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of physical component model parameters"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: physical_component_model_id
+        sql: physical_component_model_id
+        type: string
+        description: "The 3D model this parameter belongs to"
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: parameter_type
+        sql: parameter_type
+        type: string
+        description: "Type of parameter (e.g. angle, length, boolean)"
+      - name: parameter_unit
+        sql: parameter_unit
+        type: string
+        description: "Unit of measurement for this parameter"
+      - name: default_value
+        sql: default_value
+        type: string
+        description: "Default value for this parameter"

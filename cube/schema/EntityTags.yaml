@@ -1,0 +1,81 @@
+cubes:
+  - name: EntityTags
+    sql_table: fivebyfive.entity_tags
+    description: "Associates tags with various entity types (points, volumes, measurements, planes, revision items) for categorization and labeling. Only one entity foreign key is populated per row."
+
+    joins:
+      - name: Measurements
+        sql: "{TABLE}.measurement_id = {Measurements}.id"
+        relationship: many_to_one
+      - name: Planes
+        sql: "{TABLE}.plane_id = {Planes}.id"
+        relationship: many_to_one
+      - name: Points
+        sql: "{TABLE}.point_id = {Points}.id"
+        relationship: many_to_one
+      - name: Revisions
+        sql: "{TABLE}.revision_id = {Revisions}.id"
+        relationship: many_to_one
+      - name: RevisionItems
+        sql: "{TABLE}.revision_item_id = {RevisionItems}.id"
+        relationship: many_to_one
+      - name: Tags
+        sql: "{TABLE}.tag_id = {Tags}.id"
+        relationship: many_to_one
+      - name: VerticalSegments
+        sql: "{TABLE}.vertical_segment_id = {VerticalSegments}.id"
+        relationship: many_to_one
+      - name: Volumes
+        sql: "{TABLE}.volume_id = {Volumes}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of entity tags"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: tag_id
+        sql: tag_id
+        type: string
+        description: "The tag definition being applied"
+      - name: point_id
+        sql: point_id
+        type: string
+        description: "The point this tag is applied to (if tagging a point)"
+      - name: volume_id
+        sql: volume_id
+        type: string
+        description: "The volume this tag is applied to (if tagging a volume)"
+      - name: measurement_id
+        sql: measurement_id
+        type: string
+        description: "The measurement this tag is applied to"
+      - name: vertical_segment_id
+        sql: vertical_segment_id
+        type: string
+        description: "The vertical segment this tag is applied to"
+      - name: plane_id
+        sql: plane_id
+        type: string
+        description: "The plane this tag is applied to"
+      - name: revision_id
+        sql: revision_id
+        type: string
+        description: "The revision this tag is applied to"
+      - name: revision_item_id
+        sql: revision_item_id
+        type: string
+        description: "The revision item this tag is applied to"
+      - name: tag_value
+        sql: tag_value
+        type: string
+        description: "The value associated with this tag instance"
+      - name: tag_data_type
+        sql: tag_data_type
+        type: string
+        description: "Data type of the tag value"

@@ -1,0 +1,77 @@
+cubes:
+  - name: Measurements
+    sql_table: fivebyfive.measurements
+    description: "Linear or distance measurements placed within a 3D model. Can be grouped hierarchically and support different measurement types."
+
+    joins:
+      - name: Models
+        sql: "{TABLE}.model_id = {Models}.id"
+        relationship: many_to_one
+      - name: Measurements
+        sql: "{TABLE}.parent_measurement_id = {Measurements}.id"
+        relationship: many_to_one
+      - name: Tenants
+        sql: "{TABLE}.tenant_id = {Tenants}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of measurements"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: ddb_id
+        sql: ddb_id
+        type: string
+        description: "Legacy identifier from an external database"
+      - name: model_id
+        sql: model_id
+        type: string
+        description: "The 3D model this measurement belongs to"
+      - name: created_by
+        sql: created_by
+        type: string
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: display_name
+        sql: display_name
+        type: string
+      - name: is_preset
+        sql: is_preset
+        type: boolean
+        description: "Whether this is a system-created default measurement"
+      - name: is_public
+        sql: is_public
+        type: boolean
+        description: "Whether visible to all users with model access"
+      - name: last_edited_by
+        sql: last_edited_by
+        type: string
+      - name: last_edited_on
+        sql: last_edited_on
+        type: time
+      - name: tenant_id
+        sql: tenant_id
+        type: string
+        description: "Tenant scoping for this measurement"
+      - name: has_level
+        sql: has_level
+        type: boolean
+        description: "Whether this measurement has a level/elevation reference"
+      - name: parent_measurement_id
+        sql: parent_measurement_id
+        type: string
+        description: "Parent measurement for hierarchical grouping"
+      - name: parent_group
+        sql: parent_group
+        type: string
+        description: "Name of the parent group for organizational display"
+      - name: measurement_type
+        sql: measurement_type
+        type: string
+        description: "Type of measurement (e.g. distance, perimeter, height, horizontal)"

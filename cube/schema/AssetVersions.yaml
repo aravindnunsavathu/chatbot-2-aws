@@ -1,0 +1,246 @@
+cubes:
+  - name: AssetVersions
+    sql_table: fivebyfive.asset_versions
+    description: "A specific survey or inspection version of an asset, typically created from a drone capture. Tracks the full lifecycle including capture, 3D processing, packaging, and approval. Each asset can have multiple versions over time."
+
+    joins:
+      - name: Assets
+        sql: "{TABLE}.asset_id = {Assets}.id"
+        relationship: many_to_one
+      - name: Models
+        sql: "{TABLE}.base_model_id = {Models}.id"
+        relationship: many_to_one
+      - name: Companies
+        sql: "{TABLE}.dsp_id = {Companies}.id"
+        relationship: many_to_one
+      - name: AssetVersions
+        sql: "{TABLE}.synced_to_asset_version_id = {AssetVersions}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of asset versions"
+      - name: avg_price_to_customer
+        sql: price_to_customer
+        type: avg
+        description: "Average price charged to the customer"
+      - name: avg_price_to_capture
+        sql: price_to_capture
+        type: avg
+        description: "Average cost to capture an asset version"
+      - name: avg_height
+        sql: height
+        type: avg
+        description: "Average structure height in meters"
+      - name: total_price_to_customer
+        sql: price_to_customer
+        type: sum
+        description: "Total revenue from asset versions"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: ddb_id
+        sql: ddb_id
+        type: string
+        description: "Legacy identifier from an external database"
+      - name: asset_id
+        sql: asset_id
+        type: string
+        description: "The asset this version is a survey of"
+      - name: base_model_id
+        sql: base_model_id
+        type: string
+        description: "The approved/published 3D model for this version"
+      - name: draft_model_id
+        sql: draft_model_id
+        type: string
+        description: "The in-progress draft 3D model"
+      - name: active
+        sql: active
+        type: boolean
+        description: "Whether this is the currently active version"
+      - name: asset_owner
+        sql: asset_owner
+        type: string
+        description: "Username of the asset owner"
+      - name: capture_date
+        sql: capture_date
+        type: time
+        description: "Date the drone capture was performed"
+      - name: created_by
+        sql: created_by
+        type: string
+      - name: created_on
+        sql: created_on
+        type: time
+      - name: drone_height
+        sql: drone_height
+        type: number
+        description: "Height the drone flew at during capture"
+      - name: ground_space_flag
+        sql: ground_space_flag
+        type: boolean
+        description: "Whether ground space data was captured"
+      - name: height
+        sql: height
+        type: number
+        description: "Height of the structure in meters"
+      - name: ident_flag
+        sql: ident_flag
+        type: boolean
+        description: "Identification flag for the version"
+      - name: last_analyst
+        sql: last_analyst
+        type: string
+        description: "Username of the last analyst who worked on this version"
+      - name: last_approved_by
+        sql: last_approved_by
+        type: string
+        description: "Username of the last approver"
+      - name: last_assigned_by
+        sql: last_assigned_by
+        type: string
+        description: "Username of the person who last assigned the work"
+      - name: last_approved_date
+        sql: last_approved_date
+        type: time
+      - name: last_assigned_date
+        sql: last_assigned_date
+        type: time
+      - name: last_edited_by
+        sql: last_edited_by
+        type: string
+      - name: last_edited_on
+        sql: last_edited_on
+        type: time
+      - name: operator
+        sql: operator
+        type: string
+      - name: packaging_status
+        sql: packaging_status
+        type: string
+        description: "Status of the data packaging process (e.g. pending, in_progress, complete)"
+      - name: packaging_status_changed_date
+        sql: packaging_status_changed_date
+        type: time
+        description: "Timestamp when packaging status last changed"
+      - name: processing_status
+        sql: processing_status
+        type: string
+        description: "Status of the 3D model processing (e.g. pending, processing, complete, failed)"
+      - name: processing_status_changed_date
+        sql: processing_status_changed_date
+        type: time
+        description: "Timestamp when processing status last changed"
+      - name: project_name
+        sql: project_name
+        type: string
+        description: "Project name this version belongs to"
+      - name: rejection_description
+        sql: rejection_description
+        type: string
+        description: "Detailed description if the version was rejected"
+      - name: rejection_reason
+        sql: rejection_reason
+        type: string
+        description: "High-level reason for rejection"
+      - name: released
+        sql: released
+        type: boolean
+        description: "Whether this version has been released to the customer"
+      - name: upload_path
+        sql: upload_path
+        type: string
+        description: "Storage path where raw capture data was uploaded"
+      - name: vertical_space_flag
+        sql: vertical_space_flag
+        type: boolean
+        description: "Whether vertical space data was captured"
+      - name: airspace_check
+        sql: airspace_check
+        type: string
+        description: "Whether an airspace check was performed before capture"
+      - name: capture_due_date
+        sql: capture_due_date
+        type: time
+        description: "Deadline for the capture to be completed"
+      - name: capture_status
+        sql: capture_status
+        type: string
+        description: "Status of the capture workflow"
+      - name: capture_status_changed_date
+        sql: capture_status_changed_date
+        type: time
+        description: "Timestamp when capture status last changed"
+      - name: captured_by
+        sql: captured_by
+        type: string
+        description: "Username or company that performed the capture"
+      - name: delivery_due_date
+        sql: delivery_due_date
+        type: time
+        description: "Deadline for delivering the processed data"
+      - name: dsp_id
+        sql: dsp_id
+        type: string
+        description: "Drone Service Provider (DSP) company ID"
+      - name: ntp_date
+        sql: ntp_date
+        type: time
+        description: "Notice to Proceed date authorizing the capture"
+      - name: price_to_capture
+        sql: price_to_capture
+        type: number
+        description: "Cost to capture this asset version"
+      - name: price_to_customer
+        sql: price_to_customer
+        type: number
+        description: "Price charged to the customer"
+      - name: rad_count
+        sql: rad_count
+        type: number
+        description: "Number of radiating antenna elements"
+      - name: is_public_to_group
+        sql: is_public_to_group
+        type: boolean
+        description: "Whether this version is visible to the company group"
+      - name: synced_to_model_id
+        sql: synced_to_model_id
+        type: string
+        description: "Model this version has been synced to"
+      - name: data_source
+        sql: data_source
+        type: string
+        description: "Source of the capture data (e.g. drone, manual)"
+      - name: capture_type
+        sql: capture_type
+        type: string
+        description: "Type of capture performed"
+      - name: synced_to_asset_version_id
+        sql: synced_to_asset_version_id
+        type: string
+        description: "Another asset version this has been synced with"
+      - name: structure_height
+        sql: structure_height
+        type: number
+        description: "Height of the structure"
+      - name: design_capacity_over_top
+        sql: design_capacity_over_top
+        type: number
+        description: "Design capacity above the top of the structure"
+      - name: structure_design_capacity
+        sql: structure_design_capacity
+        type: number
+        description: "Structural design load capacity"
+      - name: structure_design_height
+        sql: structure_design_height
+        type: number
+        description: "Design height of the structure"
+      - name: is_5x5_sop
+        sql: is_5x5_sop
+        type: boolean
+        description: "Whether this version follows the 5x5 standard operating procedure"

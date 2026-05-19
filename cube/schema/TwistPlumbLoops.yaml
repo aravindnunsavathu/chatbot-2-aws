@@ -1,0 +1,36 @@
+cubes:
+  - name: TwistPlumbLoops
+    sql_table: fivebyfive.twist_plumb_loops
+    description: "Individual cross-sectional measurement loop data for twist/plumb analysis, representing a horizontal slice through a tower at a given position."
+
+    joins:
+      - name: Measurements
+        sql: "{TABLE}.measurement_id = {Measurements}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of twist plumb loops"
+
+    dimensions:
+      - name: measurement_id
+        sql: measurement_id
+        type: string
+        description: "The measurement this loop belongs to"
+      - name: position
+        sql: position
+        type: string
+        description: "Vertical position (elevation) of this loop on the tower"
+      - name: centroid
+        sql: centroid
+        type: string
+        description: "3D centroid point of this cross-sectional loop"
+      - name: origin
+        sql: origin
+        type: string
+        description: "Origin reference point for this loop"
+      - name: azimuth
+        sql: azimuth
+        type: number
+        description: "Compass bearing/orientation of this loop in degrees"

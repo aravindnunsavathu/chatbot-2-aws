@@ -1,0 +1,88 @@
+cubes:
+  - name: Sites
+    sql_table: fivebyfive.sites
+    description: "Physical locations (e.g. cell tower sites) with geographic coordinates and address. A site can have multiple assets. Includes Australian regulatory identifiers (ACMA, RFNSA)."
+
+    joins:
+      - name: Companies
+        sql: "{TABLE}.site_owner_id = {Companies}.id"
+        relationship: many_to_one
+
+    measures:
+      - name: count
+        type: count
+        description: "Total number of sites"
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+      - name: display_id
+        sql: display_id
+        type: string
+        description: "Human-readable site identifier"
+      - name: site_name
+        sql: site_name
+        type: string
+        description: "Name of the site"
+      - name: address_street
+        sql: address_street
+        type: string
+        description: "Street address"
+      - name: address_state
+        sql: address_state
+        type: string
+        description: "State or province"
+      - name: address_region
+        sql: address_region
+        type: string
+        description: "Geographic region"
+      - name: address_zip
+        sql: address_zip
+        type: string
+        description: "Postal/ZIP code"
+      - name: latitude
+        sql: latitude
+        type: number
+        description: "Geographic latitude"
+      - name: longitude
+        sql: longitude
+        type: number
+        description: "Geographic longitude"
+      - name: site_owner_id
+        sql: site_owner_id
+        type: string
+        description: "Company that owns this site"
+      - name: site_controller
+        sql: site_controller
+        type: string
+        description: "Entity responsible for managing the site"
+      - name: site_status
+        sql: site_status
+        type: string
+        description: "Current operational status of the site"
+      - name: has_backhaul
+        sql: has_backhaul
+        type: boolean
+        description: "Whether the site has backhaul connectivity"
+      - name: acma_id
+        sql: acma_id
+        type: string
+        description: "Australian Communications and Media Authority registration ID"
+      - name: rfnsa_id
+        sql: rfnsa_id
+        type: string
+        description: "Radio Frequency National Site Archive identifier (Australia)"
+      - name: landowner
+        sql: landowner
+        type: string
+        description: "Name of the land owner"
+      - name: integration_id
+        sql: integration_id
+        type: string
+        description: "External system integration identifier"
+      - name: terrain_category
+        sql: terrain_category
+        type: number
+        description: "Terrain classification for wind load calculations"
