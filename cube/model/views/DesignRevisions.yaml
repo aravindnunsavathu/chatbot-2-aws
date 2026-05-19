@@ -1,0 +1,32 @@
+views:
+  - name: DesignRevisions
+    description: "Design revisions and their proposed equipment changes on asset versions. Use for change tracking, revision type breakdowns, and design state analysis."
+
+    cubes:
+      - join_path: Revisions
+        includes:
+          - id
+          - revision_type
+          - design_state
+          - created_on
+          - count
+
+      - join_path: Revisions.AssetVersions
+        prefix: true
+        includes:
+          - capture_date
+          - active
+          - project_name
+
+      - join_path: Revisions.AssetVersions.Assets
+        prefix: true
+        includes:
+          - display_id
+          - asset_name
+          - asset_type
+
+      - join_path: Revisions.AssetVersions.Assets.Sites
+        prefix: true
+        includes:
+          - site_name
+          - address_state

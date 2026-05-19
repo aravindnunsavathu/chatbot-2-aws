@@ -1,0 +1,19 @@
+views:
+  - name: PhysicalComponentCatalog
+    description: "Catalog of physical equipment and hardware components (antennas, mounts, brackets, cables). Use for component inventory, category breakdowns, and specification lookups."
+
+    cubes:
+      - join_path: PhysicalComponents
+        includes:
+          - id
+          - manufacturer
+          - model
+          - category
+          - primary_type
+          - shape
+          - height_m
+          - width_m
+          - depth_m
+          - diameter_m
+          - weight_kg
+          - count

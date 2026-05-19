@@ -1,0 +1,31 @@
+views:
+  - name: AssetSummary
+    description: "Assets with their site location and key attributes. Use for questions about asset types, counts by site or state, and geographic distribution."
+
+    cubes:
+      - join_path: Assets
+        includes:
+          - id
+          - display_id
+          - asset_name
+          - asset_type
+          - structure_type
+          - asset_label
+          - latitude
+          - longitude
+          - asset_base_land_elevation_m
+          - has_fiber_joint
+          - count
+          - avg_base_elevation
+
+      - join_path: Assets.Sites
+        prefix: true
+        includes:
+          - display_id
+          - site_name
+          - address_state
+          - address_region
+          - address_city
+          - site_status
+          - terrain_category
+          - count

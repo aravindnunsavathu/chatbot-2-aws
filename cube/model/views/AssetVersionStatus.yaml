@@ -1,0 +1,54 @@
+views:
+  - name: AssetVersionStatus
+    description: "Asset versions with their full lifecycle status — capture, processing, packaging, and approval. Use for workflow progress, analyst workloads, and status breakdowns."
+
+    cubes:
+      - join_path: AssetVersions
+        includes:
+          - id
+          - capture_date
+          - created_on
+          - active
+          - released
+          - capture_status
+          - processing_status
+          - packaging_status
+          - capture_type
+          - data_source
+          - last_analyst
+          - last_approved_by
+          - captured_by
+          - project_name
+          - height
+          - rad_count
+          - price_to_customer
+          - price_to_capture
+          - capture_due_date
+          - delivery_due_date
+          - ntp_date
+          - rejection_reason
+          - count
+          - avg_price_to_customer
+          - avg_price_to_capture
+          - avg_height
+          - total_price_to_customer
+
+      - join_path: AssetVersions.Assets
+        prefix: true
+        includes:
+          - display_id
+          - asset_name
+          - asset_type
+          - structure_type
+
+      - join_path: AssetVersions.Assets.Sites
+        prefix: true
+        includes:
+          - site_name
+          - address_state
+          - address_region
+
+      - join_path: AssetVersions.Companies
+        prefix: true
+        includes:
+          - display_name

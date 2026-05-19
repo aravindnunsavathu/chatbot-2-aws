@@ -1,0 +1,40 @@
+views:
+  - name: EquipmentVolumes
+    description: "3D volumetric equipment placements on asset versions, representing physical hardware installed on structures. Use for equipment inventory, installation status, and volume type breakdowns."
+
+    cubes:
+      - join_path: Volumes
+        includes:
+          - id
+          - volume_type
+          - installation_status
+          - height_m
+          - width_m
+          - depth_m
+          - diameter_m
+          - weight_kg
+          - centerline_height_m
+          - azimuth
+          - tilt
+          - count
+
+      - join_path: Volumes.AssetVersions
+        prefix: true
+        includes:
+          - capture_date
+          - processing_status
+          - active
+          - project_name
+
+      - join_path: Volumes.AssetVersions.Assets
+        prefix: true
+        includes:
+          - display_id
+          - asset_name
+          - asset_type
+
+      - join_path: Volumes.AssetVersions.Assets.Sites
+        prefix: true
+        includes:
+          - site_name
+          - address_state

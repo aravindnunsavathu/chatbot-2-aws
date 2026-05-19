@@ -1,0 +1,21 @@
+views:
+  - name: CompanyAccessRights
+    description: "Which companies have access to which asset versions. Use for access control auditing and company-level visibility analysis."
+
+    cubes:
+      - join_path: AssetVersionCompanyAccessRights
+        includes:
+          - granted_on
+          - count
+
+      - join_path: AssetVersionCompanyAccessRights.Companies
+        prefix: true
+        includes:
+          - display_name
+
+      - join_path: AssetVersionCompanyAccessRights.AssetVersions
+        prefix: true
+        includes:
+          - capture_date
+          - processing_status
+          - active

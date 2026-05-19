@@ -1,0 +1,19 @@
+views:
+  - name: SiteOverview
+    description: "Sites with geographic details and status. Use for questions about site counts by state or region, site status distribution, and terrain categories."
+
+    cubes:
+      - join_path: Sites
+        includes:
+          - id
+          - display_id
+          - site_name
+          - address_state
+          - address_region
+          - address_city
+          - address_zip
+          - site_status
+          - terrain_category
+          - latitude
+          - longitude
+          - count
