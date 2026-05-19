@@ -25,7 +25,7 @@ views:
           - site_name
           - address_state
           - address_region
-          - address_city
+          - address_zip
           - site_status
           - terrain_category
           - count

@@ -6,16 +6,16 @@ views:
       - join_path: Volumes
         includes:
           - id
+          - display_name
           - volume_type
           - installation_status
-          - height_m
-          - width_m
-          - depth_m
-          - diameter_m
-          - weight_kg
-          - centerline_height_m
+          - center_height
+          - dimension_1
+          - dimension_2
+          - dimension_3
           - azimuth
-          - tilt
+          - downtilt
+          - roll
           - count
 
       - join_path: Volumes.AssetVersions
