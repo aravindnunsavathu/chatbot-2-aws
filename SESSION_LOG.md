@@ -362,8 +362,9 @@ ssh -i ~/Downloads/fivebyfive-key.pem \
 ```
 Inside SSH:
 ```bash
-sudo /opt/start_chatbot.sh
+sudo /opt/start_all.sh   # starts both Cube and Streamlit containers
 ```
+(`/opt/start_chatbot.sh` is a symlink to `start_all.sh` — both work.)
 
 ### Step 4 — Enable pgvector on RDS (must be done before restore)
 Inside SSH on EC2 (must be root — `sudo su -`):
@@ -454,6 +455,138 @@ The Docker image in ECR is also deleted — re-run Step 2 to push it again.
 | Embed model | amazon.titan-embed-text-v2:0 |
 | EC2 key pair | ~/Downloads/fivebyfive-key.pem |
 | App port | 8501 |
+
+---
+
+---
+
+## Phase 11 — Conversation memory (v1.1.0)
+
+**Q: When the user asks a question, does the chatbot remember the previous questions in that session?**
+
+Added `build_history()` to extract the last 3 user/assistant Q&A pairs from `st.session_state.messages` and inject them as context into both `pick_tables()` and `generate_sql()` prompts. This allows follow-up questions like "show me more of those" or "filter by the same status" to be interpreted correctly.
+
+```python
+def build_history(messages: list, max_turns: int = 3) -> str:
+    # extracts last N Q&A pairs and formats them for LLM context
+```
+
+Tagged as `v1.1.0`.
+
+---
+
+## Phase 12 — Cube.dev semantic layer (v1.2.0)
+
+**Q: Is it a good idea to incorporate a semantic layer?**
+
+Decided to add Cube.dev as a semantic layer to make SQL generation more consistent — pre-defined metrics, canonical join paths, governed measure definitions.
+
+### Cube Cloud attempt (abandoned)
+
+Tried Cube Cloud (managed):
+- Git-first mode: model files in `cube/model/`, credentials via environment variables
+- Could not complete DB connection: RDS is in a private subnet, Cube Cloud's SSH tunnel UI was not available on the free plan, and making RDS publicly accessible raised security concerns
+- Abandoned Cube Cloud in favour of self-hosting Cube on the existing EC2
+
+### Schema authoring
+
+Generated 58 Cube YAML data model files from `fivebyfive_metadata.json` using `generate_cube_schemas.py`:
+- One file per table in `cube/model/<TableName>.yaml`
+- Each file defines: `sql_table`, `measures` (count + domain aggregates), `dimensions` (typed, with descriptions), `joins` (many_to_one via foreign keys)
+- Vector columns (`VECTOR` type) excluded — those tables still use the direct pgvector path
+- 8 composite-key tables (no `id` column) got synthetic primary keys: `"{CUBE}.col1 || '_' || {CUBE}.col2"`
+
+### 7 Cube views defined in `cube/model/views/`
+
+| View | Purpose |
+|---|---|
+| `AssetSummary` | Assets with site location and attributes |
+| `AssetVersionStatus` | Full lifecycle status — capture, processing, packaging |
+| `SiteOverview` | Sites by state, region, status |
+| `EquipmentVolumes` | 3D equipment placements and installation status |
+| `PhysicalComponentCatalog` | Hardware component specifications |
+| `CompanyAccessRights` | Access control auditing by company |
+| `DesignRevisions` | Proposed equipment changes and design states |
+
+### Self-hosted Cube on EC2
+
+Deployed Cube as a second Docker container on the existing EC2 t3.micro alongside the Streamlit chatbot:
+
+**Memory management:** Added 1GB swap file (`/swapfile`) to handle running two containers on 1GB RAM.
+
+**Setup commands (run once on existing EC2):**
+```bash
+# Swap
+sudo fallocate -l 1G /swapfile && sudo chmod 600 /swapfile
+sudo mkswap /swapfile && sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
+# Clone repo for model files
+sudo dnf install -y git
+sudo git clone https://github.com/aravindnunsavathu/chatbot-2-aws /opt/chatbot-2-aws
+
+# Write /opt/cube.env (see Key config values below)
+# Write /opt/start_all.sh (starts both containers on chatbot-net Docker network)
+sudo /opt/start_all.sh
+```
+
+**Both containers share the Docker network `chatbot-net`** so the chatbot can reach Cube at `http://cube:4000` by container name.
+
+**Cube model files are live-mounted** from `/opt/chatbot-2-aws/cube/` — `git pull` inside `start_all.sh` updates schemas without rebuilding the image.
+
+**Security group:** Port 4000 added to EC2 SG for Cube REST API (applied with `terraform apply -target`).
+
+### app.py integration — Cube REST API
+
+Added routing logic in the chat loop with two paths:
+
+**Path 1 — Cube REST API** (analytical questions):
+1. `pick_view()` — LLM picks one of the 7 views or returns `"none"`
+2. `generate_cube_query()` — LLM generates a Cube JSON query (measures, dimensions, filters, order, limit)
+3. `run_cube_query()` — POST to `http://cube:4000/cubejs-api/v1/load`
+4. Cube generates and executes optimised SQL, returns results
+5. Expander shows the Cube query JSON
+
+**Path 2 — Direct SQL + pgvector** (fallback):
+- Triggered when Cube is unavailable or `pick_view()` returns `"none"`
+- Used for vector/semantic similarity questions (`physical_components`, `asset_version_notes`)
+- Same as original flow: pick tables → vector search → generate SQL → run against RDS
+- Expander shows the generated SQL
+
+**Sidebar** shows `🟢 7 views` when Cube is reachable, `🔴 Unavailable` otherwise.
+
+### start_all.sh replaces start_chatbot.sh
+
+`/opt/start_chatbot.sh` is now a symlink to `/opt/start_all.sh`, which starts both containers:
+```bash
+sudo /opt/start_all.sh
+```
+
+### Known routing limitation
+
+Vector search trigger relies on the LLM's judgment in `pick_view()`. If the LLM picks `PhysicalComponentCatalog` instead of returning `"none"`, semantic search is silently skipped and Cube does a text filter instead.
+
+Tagged as `v1.2.0`.
+
+---
+
+## Key config values (updated)
+
+| Item | Value |
+|---|---|
+| AWS Region | us-east-1 |
+| ECR repo | 032847239191.dkr.ecr.us-east-1.amazonaws.com/fivebyfive |
+| RDS endpoint | fivebyfive-postgres.cozsgk6satoj.us-east-1.rds.amazonaws.com |
+| RDS database | fivebyfiveqa |
+| RDS username | fivebyfive_admin |
+| LLM model | us.anthropic.claude-haiku-4-5-20251001-v1:0 |
+| Embed model | amazon.titan-embed-text-v2:0 |
+| EC2 key pair | ~/Downloads/fivebyfive-key.pem |
+| EC2 public IP | 54.225.235.62 |
+| App port | 8501 |
+| Cube REST API port | 4000 |
+| Cube env file | /opt/cube.env |
+| Cube model files | /opt/chatbot-2-aws/cube/model/ |
 
 ---
 
