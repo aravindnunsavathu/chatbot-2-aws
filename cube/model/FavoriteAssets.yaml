@@ -14,6 +14,10 @@ cubes:
         description: "Total number of favorite assets"
 
     dimensions:
+      - name: id
+        sql: "{CUBE}.asset_id || '_' || {CUBE}.username"
+        type: string
+        primary_key: true
       - name: asset_id
         sql: asset_id
         type: string

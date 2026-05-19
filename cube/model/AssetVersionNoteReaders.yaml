@@ -14,6 +14,10 @@ cubes:
         description: "Total number of asset version note readers"
 
     dimensions:
+      - name: id
+        sql: "{CUBE}.asset_version_note_id || '_' || {CUBE}.username"
+        type: string
+        primary_key: true
       - name: asset_version_note_id
         sql: asset_version_note_id
         type: string

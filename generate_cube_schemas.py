@@ -136,6 +136,19 @@ def generate_schema(table: str, info: dict) -> str:
 
     # ── dimensions ───────────────────────────────────────────────────────────────
     lines.append("    dimensions:")
+
+    # Tables with no 'id' column need a synthetic composite primary key
+    col_names = [c["name"] for c in info.get("columns", [])]
+    has_id = "id" in col_names
+    if not has_id and join_lines and len(col_names) >= 2:
+        pk_sql = f"{{{{CUBE}}}}.{col_names[0]} || '_' || {{{{CUBE}}}}.{col_names[1]}"
+        lines += [
+            "      - name: id",
+            f"        sql: \"{pk_sql}\"",
+            "        type: string",
+            "        primary_key: true",
+        ]
+
     for col in info.get("columns", []):
         cname = col["name"]
         ctype = cube_type(col.get("type", "varchar"))

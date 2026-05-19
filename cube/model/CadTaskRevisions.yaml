@@ -17,6 +17,10 @@ cubes:
         description: "Total number of cad task revisions"
 
     dimensions:
+      - name: id
+        sql: "{CUBE}.cad_task_id || '_' || {CUBE}.revision_id"
+        type: string
+        primary_key: true
       - name: cad_task_id
         sql: cad_task_id
         type: string

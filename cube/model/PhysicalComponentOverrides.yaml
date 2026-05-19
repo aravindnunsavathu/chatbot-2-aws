@@ -17,6 +17,10 @@ cubes:
         description: "Total number of physical component overrides"
 
     dimensions:
+      - name: id
+        sql: "{CUBE}.physical_component_id || '_' || {CUBE}.company_id"
+        type: string
+        primary_key: true
       - name: physical_component_id
         sql: physical_component_id
         type: string

@@ -17,6 +17,10 @@ cubes:
         description: "Total number of asset version company access rights"
 
     dimensions:
+      - name: id
+        sql: "{CUBE}.company_id || '_' || {CUBE}.asset_version_id"
+        type: string
+        primary_key: true
       - name: company_id
         sql: company_id
         type: string
