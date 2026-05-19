@@ -5,6 +5,7 @@ import re
 import boto3
 import pandas as pd
 import psycopg2
+import requests
 import streamlit as st
 
 # ── Config ─────────────────────────────────────────────────────────────────────
@@ -24,6 +25,7 @@ DB = dict(
 
 MAX_ROWS       = 200
 METADATA_PATH  = "fivebyfive_metadata.json"
+CUBE_URL       = os.environ.get("CUBE_URL", "http://cube:4000")
 
 VECTOR_TABLES = {"physical_components", "asset_version_notes"}
 
@@ -183,6 +185,119 @@ def build_tier2(metadata, tables, sample_values: dict | None = None):
                 )
         parts.append("\n".join(lines))
     return "\n\n".join(parts)
+
+# ── Cube semantic layer ────────────────────────────────────────────────────────
+
+@st.cache_data(ttl=300)
+def load_cube_meta() -> dict:
+    try:
+        resp = requests.get(f"{CUBE_URL}/cubejs-api/v1/meta", timeout=10)
+        return resp.json()
+    except Exception:
+        return {"cubes": []}
+
+def build_cube_tier1(meta: dict) -> str:
+    lines = ["Available Cube views for analytical queries:"]
+    for cube in meta.get("cubes", []):
+        if cube.get("type") != "view":
+            continue
+        name = cube["name"]
+        desc = cube.get("description", "")
+        measures = [m["name"].split(".", 1)[1] for m in cube.get("measures", [])]
+        lines.append(f"- {name}: {desc}")
+        lines.append(f"  measures: {', '.join(measures)}")
+    return "\n".join(lines)
+
+def build_cube_view_schema(meta: dict, view_name: str) -> str:
+    for cube in meta.get("cubes", []):
+        if cube["name"] != view_name:
+            continue
+        lines = [f"View: {view_name}", "Measures:"]
+        for m in cube.get("measures", []):
+            lines.append(f"  {m['name']} — {m.get('title', '')}")
+        lines.append("Dimensions:")
+        for d in cube.get("dimensions", []):
+            lines.append(f"  {d['name']} ({d.get('type','string')}) — {d.get('title', '')}")
+        return "\n".join(lines)
+    return ""
+
+def pick_view(question: str, cube_tier1: str, valid_views: set, history: str = "") -> str:
+    prompt = f"""You are selecting the best Cube view to answer an analytics question.
+
+{cube_tier1}
+{history}
+User question: {question}
+
+Which single view best covers this question?
+Return "none" if:
+- The question needs semantic similarity search on component descriptions or notes
+- No single view has the needed fields
+
+Return ONLY the exact view name (e.g. "AssetSummary") or "none". Nothing else."""
+    text = _llm(prompt).strip().strip('"').strip("'")
+    return text if text in valid_views else "none"
+
+def generate_cube_query(question: str, view_schema: str, history: str = "") -> dict:
+    prompt = f"""You are generating a Cube.dev REST API query to answer a question.
+
+{view_schema}
+
+Output a JSON object in this exact format:
+{{
+  "measures": ["ViewName.measureName"],
+  "dimensions": ["ViewName.dimensionName"],
+  "filters": [{{"member": "ViewName.field", "operator": "equals", "values": ["value"]}}],
+  "order": {{{{"ViewName.measure": "desc"}}}},
+  "limit": {MAX_ROWS}
+}}
+
+Filter operators: equals, notEquals, contains, notContains, gt, gte, lt, lte, set, notSet
+Rules:
+- Use ONLY measures and dimensions listed in the schema above
+- Add filters when the question specifies a status, type, name, or date range
+- Add order when question asks for top/bottom/most/least
+- Always include limit: {MAX_ROWS}
+- Omit keys that are not needed (e.g. omit "filters" if no filtering required)
+- Return ONLY valid JSON — no markdown, no explanation
+{history}
+User question: {question}
+
+JSON:"""
+    text = _llm(prompt)
+    text = re.sub(r"^```json\s*", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"^```\s*", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\s*```$", "", text).strip()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        m = re.search(r"\{.*\}", text, re.DOTALL)
+        if m:
+            try:
+                return json.loads(m.group())
+            except json.JSONDecodeError:
+                pass
+    return {}
+
+def run_cube_query(query: dict) -> tuple[list, list, str | None]:
+    if not query:
+        return [], [], "Failed to generate a valid Cube query"
+    try:
+        resp = requests.post(
+            f"{CUBE_URL}/cubejs-api/v1/load",
+            json={"query": query},
+            timeout=30,
+        )
+        data = resp.json()
+        if "error" in data:
+            return [], [], data["error"]
+        results = data.get("data", [])
+        if not results:
+            return [], [], None
+        columns = list(results[0].keys())
+        rows = [list(r.values()) for r in results]
+        return columns, rows, None
+    except Exception as e:
+        return [], [], str(e)
 
 # ── LLM calls ──────────────────────────────────────────────────────────────────
 def _llm(prompt: str) -> str:
@@ -409,6 +524,8 @@ with st.sidebar:
     st.divider()
     db_status = db_ok()
     st.markdown(f"**Database:** {'🟢 Connected' if db_status else '🔴 Unreachable'}")
+    cube_ok = bool(valid_views)
+    st.markdown(f"**Cube:** {'🟢 ' + str(len(valid_views)) + ' views' if cube_ok else '🔴 Unavailable'}")
     st.markdown(f"**Region:** `{AWS_REGION}`")
     st.markdown(f"**LLM:** `{LLM_MODEL_ID}`")
     st.markdown(f"**Embeddings:** `{EMBED_MODEL_ID}`")
@@ -439,6 +556,9 @@ if "messages" not in st.session_state:
 metadata = load_metadata()
 tier1 = build_tier1(metadata)
 sample_values = load_sample_values()
+cube_meta = load_cube_meta()
+cube_tier1 = build_cube_tier1(cube_meta)
+valid_views = {c["name"] for c in cube_meta.get("cubes", []) if c.get("type") == "view"}
 
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
@@ -466,32 +586,56 @@ if question := st.chat_input("Ask a question about your data..."):
     with st.chat_message("assistant"):
         with st.status("Working...", expanded=True) as status:
 
-            status.write("Identifying relevant tables...")
-            tables = pick_tables(question, tier1, history)
-            status.write(f"Selected: {', '.join(f'`{t}`' for t in tables)}")
+            use_cube = bool(valid_views)
+            sql = ""
+            tables = []
+            cube_query = {}
 
-            tier2 = build_tier2(metadata, tables, sample_values)
+            if use_cube:
+                status.write("Selecting Cube view...")
+                view = pick_view(question, cube_tier1, valid_views, history)
+                use_cube = view != "none"
 
-            vector_hints = ""
-            if any(t in VECTOR_TABLES for t in tables):
-                status.write("Running vector search...")
-                vector_hints = vector_search(tables, question)
+            if use_cube:
+                status.write(f"Using view: `{view}`")
+                view_schema = build_cube_view_schema(cube_meta, view)
 
-            status.write("Generating SQL...")
-            sql = generate_sql(question, tier2, vector_hints, history)
+                status.write("Generating Cube query...")
+                cube_query = generate_cube_query(question, view_schema, history)
 
-            status.write("Running query...")
-            columns, rows, error = run_sql(sql)
+                status.write("Running Cube query...")
+                columns, rows, error = run_cube_query(cube_query)
+                tables = [view]
+                sql = json.dumps(cube_query, indent=2)
 
-            if error:
-                status.write("Fixing SQL error...")
-                sql = fix_sql(question, sql, error, tier2)
+            else:
+                status.write("Identifying relevant tables...")
+                tables = pick_tables(question, tier1, history)
+                status.write(f"Selected: {', '.join(f'`{t}`' for t in tables)}")
+
+                tier2 = build_tier2(metadata, tables, sample_values)
+
+                vector_hints = ""
+                if any(t in VECTOR_TABLES for t in tables):
+                    status.write("Running vector search...")
+                    vector_hints = vector_search(tables, question)
+
+                status.write("Generating SQL...")
+                sql = generate_sql(question, tier2, vector_hints, history)
+
+                status.write("Running query...")
                 columns, rows, error = run_sql(sql)
+
+                if error:
+                    status.write("Fixing SQL error...")
+                    sql = fix_sql(question, sql, error, tier2)
+                    columns, rows, error = run_sql(sql)
 
             if error:
                 answer = (
                     f"I wasn't able to run the query. Error: `{error}`\n\n"
-                    f"**Generated SQL:**\n```sql\n{sql}\n```"
+                    + (f"**Cube query:**\n```json\n{sql}\n```" if cube_query
+                       else f"**Generated SQL:**\n```sql\n{sql}\n```")
                 )
                 status.update(label="Query failed", state="error")
             else:
@@ -501,11 +645,14 @@ if question := st.chat_input("Ask a question about your data..."):
 
         st.markdown(answer)
 
-        if sql:
+        if cube_query:
+            with st.expander("Cube query"):
+                st.code(sql, language="json")
+        elif sql:
             with st.expander("SQL query"):
                 st.code(sql, language="sql")
         if tables:
-            with st.expander(f"Tables used ({len(tables)})"):
+            with st.expander(f"{'View' if cube_query else 'Tables'} used ({len(tables)})"):
                 st.write(", ".join(f"`{t}`" for t in tables))
         if columns and rows:
             with st.expander(f"Raw results ({len(rows)} rows)"):
