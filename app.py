@@ -518,6 +518,13 @@ st.set_page_config(
     layout="wide",
 )
 
+metadata = load_metadata()
+tier1 = build_tier1(metadata)
+sample_values = load_sample_values()
+cube_meta = load_cube_meta()
+cube_tier1 = build_cube_tier1(cube_meta)
+valid_views = {c["name"] for c in cube_meta.get("cubes", []) if c.get("type") == "view"}
+
 with st.sidebar:
     st.title("🏗️ FiveByFive")
     st.caption("Infrastructure Data Assistant")
@@ -552,13 +559,6 @@ if not db_status:
 # ── Chat state ─────────────────────────────────────────────────────────────────
 if "messages" not in st.session_state:
     st.session_state.messages = []
-
-metadata = load_metadata()
-tier1 = build_tier1(metadata)
-sample_values = load_sample_values()
-cube_meta = load_cube_meta()
-cube_tier1 = build_cube_tier1(cube_meta)
-valid_views = {c["name"] for c in cube_meta.get("cubes", []) if c.get("type") == "view"}
 
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
