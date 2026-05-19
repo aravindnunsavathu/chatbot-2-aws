@@ -8,7 +8,7 @@ import json
 import os
 import re
 
-OUTPUT_DIR = "cube/schema"
+OUTPUT_DIR = "cube/model"
 
 PG_TO_CUBE = {
     "uuid": "string",
