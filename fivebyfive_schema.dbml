@@ -1,0 +1,993 @@
+Table areas {
+  id uuid [pk]
+  model_id uuid [note: "The 3D model this area belongs to"]
+  created_by varchar
+  created_on timestamp
+  display_name varchar
+  is_preset boolean [note: "True if this area was created by the system as a default/pre"]
+  is_public boolean [note: "True if this area is visible to all users with model access"]
+  last_edited_by varchar
+  last_edited_on timestamp
+  ordered_points varchar [note: "Array of 3D coordinates defining the polygon boundary"]
+  area_m decimal [note: "Calculated area in square meters"]
+}
+
+Table asset_custom_field_values {
+  id uuid [pk]
+  asset_id uuid [note: "The asset this value belongs to"]
+  custom_field_id uuid [note: "The custom field definition this value is for"]
+  group_id uuid [note: "Optional grouping identifier for multi-value fields"]
+  unit varchar [note: "Unit of measurement for numeric values (e.g. meters, kg)"]
+  value_integer int
+  value_float float
+  value_string varchar
+  value_boolean boolean
+  value_date date
+  value_string_list varchar [note: "Array of string values for list-type fields"]
+}
+
+Table asset_api_events {
+  event_id varchar [note: "Unique event identifier"]
+  created_on timestamp
+  organizations varchar [note: "List of organization IDs associated with this event"]
+  asset_version_id varchar [note: "The asset version whose status changed"]
+  old_packaging_status varchar [note: "Packaging status before the event"]
+  new_packaging_status varchar [note: "Packaging status after the event"]
+  old_processing_status varchar [note: "Processing status before the event"]
+  new_processing_status varchar [note: "Processing status after the event"]
+  processed boolean [note: "Whether this event has been consumed/processed"]
+  read_by varchar [note: "List of systems or users that have read this event"]
+}
+
+Table asset_custom_fields {
+  id uuid [pk]
+  data_type varchar [note: "The data type of the field (e.g. string, integer, float, boo"]
+  input_type varchar [note: "UI input type (e.g. text, dropdown, checkbox)"]
+  display_name varchar
+  source_name varchar [note: "Internal/API name for the field"]
+  allowed_values varchar [note: "Array of permitted values for dropdown/list fields"]
+  company_id uuid [note: "The company that defined this custom field"]
+  is_editable boolean [note: "Whether users can edit this field value"]
+  is_hidden boolean [note: "Whether this field is hidden from standard views"]
+  in_table boolean [note: "Whether this field appears in table/grid views"]
+}
+
+Table asset_items {
+  id uuid [pk]
+  asset_id uuid [note: "The asset this item belongs to"]
+  physical_component_id uuid [note: "The physical component catalog entry for this item"]
+  parent_asset_item_id uuid [note: "Parent item for hierarchical grouping (null if top-level)"]
+  item_attributes jsonb [note: "JSON object of additional attributes for this item"]
+  display_name varchar
+}
+
+Table asset_version_custom_field_values {
+  id uuid [pk]
+  asset_version_id uuid [note: "The asset version this value belongs to"]
+  custom_field_id uuid [note: "The custom field definition this value is for"]
+  group_id uuid [note: "Optional grouping identifier for multi-value fields"]
+  unit varchar [note: "Unit of measurement for numeric values"]
+  value_integer int
+  value_float float
+  value_string varchar
+  value_boolean boolean
+  value_date date
+  value_string_list varchar [note: "Array of string values for list-type fields"]
+}
+
+Table asset_version_custom_fields {
+  id uuid [pk]
+  data_type varchar [note: "The data type of the field (e.g. string, integer, float, boo"]
+  input_type varchar [note: "UI input type (e.g. text, dropdown, checkbox)"]
+  display_name varchar
+  source_name varchar [note: "Internal/API name for the field"]
+  allowed_values varchar [note: "Array of permitted values for dropdown/list fields"]
+  company_id uuid [note: "The company that defined this custom field"]
+  is_editable boolean [note: "Whether users can edit this field value"]
+  is_hidden boolean [note: "Whether this field is hidden from standard views"]
+  in_table boolean [note: "Whether this field appears in table/grid views"]
+}
+
+Table asset_version_notes {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database (DynamoDB)"]
+  asset_version_id uuid [note: "The asset version this note is attached to"]
+  created_by varchar
+  created_on timestamp
+  text_content varchar [note: "The note text content"]
+}
+
+Table bim_export_tasks {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  created_on timestamp
+  details varchar [note: "JSON object with export configuration and task details"]
+  forge_work_item_id varchar [note: "Autodesk Forge work item ID for BIM processing"]
+  status_update_date timestamp [note: "Timestamp of the last status change"]
+  task_status varchar [note: "Current task status (e.g. pending, running, completed, faile"]
+}
+
+Table assets {
+  id uuid [pk]
+  display_id varchar [note: "Human-readable identifier for the asset"]
+  asset_name varchar [note: "Name of the asset"]
+  asset_type varchar [note: "Type of asset (e.g. tower, monopole, rooftop, small cell)"]
+  latitude float [note: "Geographic latitude of the asset"]
+  longitude float [note: "Geographic longitude of the asset"]
+  structure_type varchar [note: "Structural classification of the asset"]
+  asset_label varchar [note: "Short label/code for the asset"]
+  asset_index varchar [note: "Index used for ordering assets at a site"]
+  structure_label varchar [note: "Label for the structure type"]
+  asset_base_land_elevation_m decimal [note: "Elevation of the base of the asset above sea level in meters"]
+  low_voltage_power_distance_m decimal [note: "Distance to nearest low voltage power source in meters"]
+  has_fiber_joint boolean [note: "Whether the asset has a fiber joint connection"]
+  nearest_fiber_joint_m decimal [note: "Distance to the nearest fiber joint in meters"]
+  site_id uuid [note: "The site where this asset is located"]
+}
+
+Table apertures {
+  id uuid [pk]
+  display_name varchar
+  description varchar
+  aperture_type varchar [note: "Type of aperture (e.g. conduit, waveguide, cable port)"]
+  images_url varchar [note: "Array of image URLs showing this aperture"]
+  owner_company_id uuid [note: "Company that owns or manages this aperture definition"]
+  height_m decimal [note: "Height of the aperture in meters"]
+  width_m decimal [note: "Width of the aperture in meters"]
+  depth_m decimal [note: "Depth of the aperture in meters"]
+  area_m decimal [note: "Cross-sectional area in square meters"]
+  volume_m decimal [note: "Volume in cubic meters"]
+  weight_kg decimal [note: "Weight in kilograms"]
+  wind_load_n decimal [note: "Wind load in Newtons"]
+  diameter_m decimal [note: "Diameter in meters (for circular apertures)"]
+}
+
+Table asset_version_company_access_rights {
+  company_id uuid [note: "The company being granted access"]
+  asset_version_id uuid [note: "The asset version being accessed"]
+  granted_on timestamp [note: "Timestamp when access was granted"]
+}
+
+Table asset_versions {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  asset_id uuid [note: "The asset this version is a survey of"]
+  base_model_id uuid [note: "The approved/published 3D model for this version"]
+  draft_model_id uuid [note: "The in-progress draft 3D model"]
+  active boolean [note: "Whether this is the currently active version"]
+  asset_owner varchar [note: "Username of the asset owner"]
+  capture_date timestamp [note: "Date the drone capture was performed"]
+  created_by varchar
+  created_on timestamp
+  drone_height float [note: "Height the drone flew at during capture"]
+  ground_space_flag boolean [note: "Whether ground space data was captured"]
+  height float [note: "Height of the structure in meters"]
+  ident_flag boolean [note: "Identification flag for the version"]
+  last_analyst varchar [note: "Username of the last analyst who worked on this version"]
+  last_approved_by varchar [note: "Username of the last approver"]
+  last_assigned_by varchar [note: "Username of the person who last assigned the work"]
+  last_approved_date timestamp
+  last_assigned_date timestamp
+  last_edited_by varchar
+  last_edited_on timestamp
+  operator varchar
+  packaging_status varchar [note: "Status of the data packaging process (e.g. pending, in_progr"]
+  packaging_status_changed_date timestamp [note: "Timestamp when packaging status last changed"]
+  processing_status varchar [note: "Status of the 3D model processing (e.g. pending, processing,"]
+  processing_status_changed_date timestamp [note: "Timestamp when processing status last changed"]
+  project_name varchar [note: "Project name this version belongs to"]
+  rejection_description varchar [note: "Detailed description if the version was rejected"]
+  rejection_reason varchar [note: "High-level reason for rejection"]
+  released boolean [note: "Whether this version has been released to the customer"]
+  upload_path varchar [note: "Storage path where raw capture data was uploaded"]
+  vertical_space_flag boolean [note: "Whether vertical space data was captured"]
+  airspace_check varchar [note: "Whether an airspace check was performed before capture"]
+  capture_due_date timestamp [note: "Deadline for the capture to be completed"]
+  capture_status varchar [note: "Status of the capture workflow"]
+  capture_status_changed_date timestamp [note: "Timestamp when capture status last changed"]
+  captured_by varchar [note: "Username or company that performed the capture"]
+  delivery_due_date timestamp [note: "Deadline for delivering the processed data"]
+  dsp_id uuid [note: "Drone Service Provider (DSP) company ID"]
+  ntp_date timestamp [note: "Notice to Proceed date authorizing the capture"]
+  price_to_capture decimal [note: "Cost to capture this asset version"]
+  price_to_customer decimal [note: "Price charged to the customer"]
+  rad_count int [note: "Number of radiating antenna elements"]
+  is_public_to_group boolean [note: "Whether this version is visible to the company group"]
+  synced_to_model_id uuid [note: "Model this version has been synced to"]
+  data_source varchar [note: "Source of the capture data (e.g. drone, manual)"]
+  capture_type varchar [note: "Type of capture performed"]
+  synced_to_asset_version_id uuid [note: "Another asset version this has been synced with"]
+  structure_height decimal [note: "Height of the structure"]
+  design_capacity_over_top decimal [note: "Design capacity above the top of the structure"]
+  structure_design_capacity decimal [note: "Structural design load capacity"]
+  structure_design_height decimal [note: "Design height of the structure"]
+  is_5x5_sop boolean [note: "Whether this version follows the 5x5 standard operating proc"]
+}
+
+Table collections {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  model_id uuid [note: "The 3D model this collection belongs to"]
+  created_by varchar
+  created_on timestamp
+  deleted_by varchar [note: "Username of the user who deleted this collection"]
+  deleted_on timestamp [note: "Timestamp when the collection was soft-deleted"]
+  display_name varchar
+  is_deleted boolean [note: "Whether this collection has been soft-deleted"]
+  is_preset boolean [note: "Whether this is a system-created default collection"]
+  is_public boolean [note: "Whether this collection is visible to all users with model a"]
+  tenant_id uuid [note: "Tenant scoping for this collection"]
+  parent_id uuid [note: "Parent collection for nested hierarchy (null if top-level)"]
+}
+
+Table bim_exports {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  model_id uuid [note: "The 3D model that was exported"]
+  created_by varchar
+  created_on timestamp
+  deleted_by varchar [note: "Username of the user who deleted this export"]
+  deleted_on timestamp [note: "Timestamp when soft-deleted"]
+  display_name varchar
+  is_deleted boolean [note: "Whether this export record has been soft-deleted"]
+  task_id uuid [note: "The background processing task that generated this export"]
+  task_status varchar [note: "Current status of the export task"]
+}
+
+Table companies {
+  id uuid [pk]
+  display_name varchar
+  aliases varchar [note: "Array of alternative names or codes for this company"]
+  is_capture_provider boolean [note: "Whether this company provides drone capture services (is a D"]
+  customer_data jsonb [note: "JSON object with additional customer-specific metadata"]
+  restrictions json [note: "JSON object defining what data this company is restricted fr"]
+  has_restriction_flag boolean [note: "Whether any access restrictions are active for this company"]
+}
+
+Table cad_tasks {
+  id uuid [pk]
+  autocad_id uuid [note: "External AutoCAD processing job identifier"]
+  completed_on timestamp [note: "Timestamp when the task completed"]
+  created_by varchar
+  created_on timestamp
+  error_message varchar
+  model_id uuid [note: "The 3D model being converted"]
+  task_status varchar [note: "Current task status (e.g. pending, running, completed, faile"]
+  report_content varchar [note: "JSON content of the conversion report"]
+  file_format varchar [note: "Output CAD file format (e.g. dxf, dwg)"]
+}
+
+Table collection_items {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  collection_id uuid [note: "The collection this item belongs to"]
+  file_id uuid [note: "The file included in the collection"]
+  deleted_by varchar [note: "Username of who removed this item"]
+  deleted_on timestamp [note: "Timestamp when soft-deleted"]
+  is_deleted boolean [note: "Whether this item has been soft-deleted"]
+  sort_index int [note: "Ordering index for display within the collection"]
+}
+
+Table entity_tags {
+  id uuid [pk]
+  tag_id uuid [note: "The tag definition being applied"]
+  point_id uuid [note: "The point this tag is applied to (if tagging a point)"]
+  volume_id uuid [note: "The volume this tag is applied to (if tagging a volume)"]
+  measurement_id uuid [note: "The measurement this tag is applied to"]
+  vertical_segment_id uuid [note: "The vertical segment this tag is applied to"]
+  plane_id uuid [note: "The plane this tag is applied to"]
+  revision_id uuid [note: "The revision this tag is applied to"]
+  revision_item_id uuid [note: "The revision item this tag is applied to"]
+  tag_value varchar [note: "The value associated with this tag instance"]
+  tag_data_type varchar [note: "Data type of the tag value"]
+}
+
+Table favorite_assets {
+  asset_id uuid [note: "The favorited asset"]
+  username varchar [note: "The user who favorited it"]
+  created_on timestamp [note: "Timestamp when the favorite was added"]
+}
+
+Table ground_spaces {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  model_id uuid [note: "The 3D model this ground space belongs to"]
+  created_by varchar
+  created_on timestamp
+  display_name varchar
+  ground_plane_offset decimal [note: "Vertical offset from the ground plane in meters"]
+  is_preset boolean [note: "Whether this is a system-created default ground space"]
+  is_public boolean [note: "Whether visible to all users with model access"]
+  last_edited_by varchar
+  last_edited_on timestamp
+  points json [note: "Array of 3D points defining the outline"]
+  polygons json [note: "Array of polygon definitions within this ground space"]
+}
+
+Table grants {
+  id uuid [pk]
+  asset_version_id uuid [note: "The asset version access is granted to"]
+  granting_company_id uuid [note: "The company issuing the grant"]
+  recipient_username varchar [note: "The specific user receiving access (null if granted to a com"]
+  recipient_company_id uuid [note: "The company receiving access (null if granted to a user)"]
+  grant_type varchar [note: "Type of access granted (e.g. view, edit, admin)"]
+  granted_on timestamp [note: "Timestamp when the grant was created"]
+}
+
+Table image_tags {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  asset_version_id uuid [note: "The asset version whose images are tagged"]
+  asset_version_index int [note: "Index of the specific image within the asset version"]
+  created_by varchar
+  created_on timestamp
+  deleted_by varchar [note: "Username of who deleted this tag"]
+  deleted_on timestamp [note: "Timestamp when soft-deleted"]
+  field_name varchar [note: "Name of the field or attribute being tagged"]
+  field_value int [note: "Value of the field at this position"]
+  image_path varchar [note: "Storage path to the image"]
+  is_deleted boolean [note: "Whether this tag has been soft-deleted"]
+  position json [note: "2D coordinates within the image where this tag is placed"]
+  tag_type varchar [note: "Type/category of this image tag"]
+  text_content varchar [note: "Optional text annotation content"]
+}
+
+Table matched_volumes {
+  id uuid [pk]
+  current_volume_id uuid [note: "The volume in the current/newer asset version"]
+  matched_to_volume_id uuid [note: "The corresponding volume in the older asset version"]
+  current_asset_version_id uuid [note: "The newer asset version"]
+  matched_to_asset_version_id uuid [note: "The older asset version being compared to"]
+  match_type varchar [note: "How the match was determined (e.g. automatic, manual)"]
+  match_rating decimal [note: "Confidence score for the match (0-1)"]
+  confirmation_status varchar [note: "Whether the match has been confirmed by a user"]
+  created_on timestamp
+  last_edited_by varchar
+  last_edited_on timestamp
+}
+
+Table models {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  ddb_parent_id varchar [note: "Legacy parent identifier"]
+  asset_version_id uuid [note: "The asset version this model was created for"]
+  created_by varchar
+  created_on timestamp
+  display_name varchar
+  is_deleted boolean [note: "Whether this model has been soft-deleted"]
+  frust_size float [note: "Camera frustum size parameter for 3D rendering"]
+  georef varchar [note: "JSON object containing georeferencing transformation data"]
+  ground_plane_id uuid [note: "Reference to the ground plane object in the model"]
+  highest_appurtenance_id uuid [note: "Reference to the topmost appurtenance volume"]
+  object_production varchar [note: "JSON metadata about how 3D objects were produced"]
+  radius float [note: "Bounding radius of the model in meters"]
+  scale_ratio float [note: "Scale factor applied to the model"]
+  site_3d_data varchar [note: "JSON object with site-level 3D spatial data"]
+  srs varchar [note: "Spatial Reference System (coordinate system) used for georef"]
+  top_steel_id uuid [note: "Reference to the top steel structure point/volume"]
+  parent_model_id uuid [note: "Parent model for hierarchical model relationships"]
+  slice_plane_1 json [note: "First slicing plane definition for cross-section views"]
+  slice_plane_2 json [note: "Second slicing plane definition"]
+  tiles varchar [note: "JSON metadata for 3D tile streaming configuration"]
+  modeling_engine varchar [note: "Software engine used to produce the 3D model"]
+  synced_to_id uuid [note: "Another model this model has been synced/aligned with"]
+  engine varchar [note: "Processing engine version"]
+  roll_uncertainty float [note: "Uncertainty in roll angle measurement (degrees)"]
+  downtilt_uncertainty float [note: "Uncertainty in downtilt angle measurement (degrees)"]
+  azimuth_uncertainty float [note: "Uncertainty in azimuth measurement (degrees)"]
+  scale_uncertainty float [note: "Uncertainty in scale factor"]
+  autogeoref_method varchar [note: "Method used for automatic georeferencing"]
+  georef_method varchar [note: "Final georeferencing method applied"]
+  recapture_sync_status varchar [note: "Status of syncing with a recaptured model"]
+  last_completed_date timestamp [note: "Date the model was last fully processed"]
+  ground_level_id uuid [note: "Reference to the ground level definition"]
+}
+
+Table georef_tasks {
+  id uuid [pk]
+  model_id uuid [note: "The model being georeferenced"]
+  task_arn varchar [note: "AWS ARN of the background processing task"]
+  task_status varchar [note: "Current status of the georeferencing task"]
+  task_token varchar [note: "Token for resuming async task execution"]
+}
+
+Table files {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  model_id uuid [note: "The 3D model this file is attached to"]
+  created_by varchar
+  created_on timestamp
+  deleted_by varchar [note: "Username of who deleted this file"]
+  deleted_on timestamp [note: "Timestamp when soft-deleted"]
+  display_name varchar
+  file_path varchar [note: "Storage path to the file"]
+  file_type varchar [note: "MIME type or file extension (e.g. image/jpeg, application/pd"]
+  is_deleted boolean [note: "Whether this file has been soft-deleted"]
+  is_preset boolean [note: "Whether this is a system-provided default file"]
+  is_public boolean [note: "Whether this file is visible to all users with model access"]
+  last_edited_by varchar
+  last_edited_on timestamp
+}
+
+Table paged_sites {
+  s_id uuid [note: "Site ID"]
+  s_site_name text [note: "Site name"]
+  s_display_id text [note: "Site display identifier"]
+  s_address_region text [note: "Geographic region of the site"]
+  s_longitude float [note: "Site longitude"]
+  s_latitude float [note: "Site latitude"]
+  s_address_state text [note: "State/province of the site"]
+  a_id varchar [note: "Asset ID"]
+  a_asset_type varchar [note: "Type of the asset"]
+  a_asset_label varchar [note: "Asset label/code"]
+  a_structure_type varchar [note: "Structural classification of the asset"]
+  av_packaging_status varchar [note: "Asset version packaging status (internal)"]
+  av_last_approved_by varchar [note: "Last approver (internal)"]
+  av_height varchar [note: "Structure height (internal version)"]
+  av_capture_date varchar [note: "Capture date (internal version)"]
+  av_asset_owner varchar [note: "Asset owner (internal version)"]
+  av_last_approved_date varchar
+  av_project_name varchar
+  av_last_analyst varchar
+  av_base_model_id varchar [note: "Base model ID (internal version)"]
+  av_id varchar [note: "Asset version ID (internal)"]
+  av_company_rights varchar [note: "Company access rights for internal version"]
+  s_site_owner_id uuid [note: "Company that owns this site"]
+  s_address_street text [note: "Street address of the site"]
+  a_display_id varchar [note: "Asset display identifier"]
+  av_last_assigned_date varchar
+  av_packaging_status_external varchar [note: "Asset version packaging status (external/third-party version"]
+  av_last_approved_by_external varchar
+  av_height_external varchar
+  av_capture_date_external varchar
+  av_asset_owner_external varchar
+  av_last_approved_date_external varchar
+  av_project_name_external varchar
+  av_last_analyst_external varchar
+  av_last_assigned_date_external varchar
+  av_base_model_id_external varchar
+  av_id_external varchar [note: "Asset version ID (external)"]
+  av_company_rights_external varchar [note: "Company access rights for external version"]
+  a_id_external varchar [note: "Asset ID for external version"]
+  a_asset_type_external varchar
+  a_asset_label_external varchar
+  a_display_id_external varchar
+  a_structure_type_external varchar
+  av_active boolean [note: "Whether the internal asset version is active"]
+  av_released boolean [note: "Whether the internal asset version is released"]
+  av_active_external boolean [note: "Whether the external asset version is active"]
+  av_released_external boolean [note: "Whether the external asset version is released"]
+}
+
+Table measurement_segments {
+  id uuid [pk]
+  measurement_id uuid [note: "The measurement this segment belongs to"]
+  endpoint_1 json [note: "3D coordinates of the first endpoint"]
+  endpoint_2 json [note: "3D coordinates of the second endpoint"]
+  is_dynamic boolean [note: "Whether this segment length updates dynamically"]
+  segment_length decimal [note: "Length of this segment in meters"]
+}
+
+Table measurements {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  model_id uuid [note: "The 3D model this measurement belongs to"]
+  created_by varchar
+  created_on timestamp
+  display_name varchar
+  is_preset boolean [note: "Whether this is a system-created default measurement"]
+  is_public boolean [note: "Whether visible to all users with model access"]
+  last_edited_by varchar
+  last_edited_on timestamp
+  tenant_id uuid [note: "Tenant scoping for this measurement"]
+  has_level boolean [note: "Whether this measurement has a level/elevation reference"]
+  parent_measurement_id uuid [note: "Parent measurement for hierarchical grouping"]
+  parent_group varchar [note: "Name of the parent group for organizational display"]
+  measurement_type varchar [note: "Type of measurement (e.g. distance, perimeter, height, horiz"]
+}
+
+Table physical_component_models {
+  id uuid [pk]
+  physical_component_id uuid [note: "The physical component catalog entry this model represents"]
+  company_id uuid [note: "The company that owns this 3D model"]
+  display_name varchar
+  format varchar [note: "File format of the 3D model (e.g. ifc, obj, fbx, glb)"]
+  file_path varchar [note: "Storage path to the 3D model file"]
+  created_by varchar
+  created_on timestamp
+}
+
+Table physical_component_overrides {
+  physical_component_id uuid [note: "The physical component being overridden"]
+  company_id uuid [note: "The company applying the override"]
+  is_excluded boolean [note: "Whether this company has excluded this component from their "]
+  height_m decimal [note: "Overridden height in meters"]
+  width_m decimal [note: "Overridden width in meters"]
+  depth_m decimal [note: "Overridden depth in meters"]
+  diameter_m decimal [note: "Overridden diameter in meters"]
+  sail_area_m decimal [note: "Overridden wind sail area in square meters"]
+  weight_kg decimal [note: "Overridden weight in kilograms"]
+  component_description varchar [note: "Overridden description text"]
+  storage_service varchar [note: "Storage service hosting the override files"]
+  spec_sheets varchar [note: "Array of URLs to specification/datasheet documents"]
+  images varchar [note: "Array of URLs to component images"]
+}
+
+Table physical_component_model_tasks {
+  id uuid [pk]
+  physical_component_id uuid [note: "The physical component being processed"]
+  company_id uuid [note: "The company that owns this conversion task"]
+  display_name varchar
+  format varchar [note: "Target output file format"]
+  input_file_path varchar [note: "Storage path of the input file"]
+  output_file_path varchar [note: "Storage path of the processed output file"]
+  created_by varchar
+  created_on timestamp
+  physical_component_model_id uuid [note: "The resulting physical component model record"]
+  status varchar [note: "Task status (e.g. pending, running, completed, failed)"]
+  error_message varchar [note: "Error details if the task failed"]
+  command varchar [note: "Processing command or configuration used"]
+}
+
+Table report_company_access_rights {
+  company_id uuid [note: "The company being granted access"]
+  report_id uuid [note: "The report being accessed"]
+  granted_on timestamp [note: "Timestamp when access was granted"]
+}
+
+Table points {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  model_id uuid [note: "The 3D model this point belongs to"]
+  created_by varchar
+  created_on timestamp
+  display_name varchar
+  is_preset boolean [note: "Whether this is a system-created default point"]
+  is_public boolean [note: "Whether visible to all users with model access"]
+  last_edited_by varchar
+  last_edited_on timestamp
+  position json [note: "3D coordinates (x, y, z) of this point in model space"]
+  tenant_id uuid [note: "Tenant scoping for this point"]
+  parent_measurement_id uuid [note: "Parent measurement this point belongs to"]
+  parent_group varchar [note: "Display group name for organizational purposes"]
+  has_level boolean [note: "Whether this point has a level/elevation reference"]
+}
+
+Table physical_components {
+  id uuid [pk]
+  category varchar [note: "High-level category of the component (e.g. antenna, mount, c"]
+  primary_type varchar [note: "Primary classification within the category"]
+  secondary_type varchar [note: "Secondary/sub classification"]
+  is_parametric boolean [note: "Whether this component has adjustable parametric dimensions"]
+  is_discontinued boolean [note: "Whether this component is no longer manufactured"]
+  manufacturer varchar [note: "Name of the manufacturer"]
+  model_identifier varchar [note: "Manufacturer model number or identifier"]
+  family_identifier varchar [note: "Product family identifier"]
+  shape varchar [note: "Physical shape of the component (e.g. rectangular, cylindric"]
+  height_m decimal [note: "Height in meters"]
+  width_m decimal [note: "Width in meters"]
+  depth_m decimal [note: "Depth in meters"]
+  diameter_m decimal [note: "Diameter in meters (for cylindrical components)"]
+  sail_area_m decimal [note: "Wind-exposed sail area in square meters"]
+  weight_kg decimal [note: "Weight in kilograms"]
+  component_description varchar [note: "Human-readable description of the component"]
+  storage_service varchar [note: "Storage service hosting spec sheets and images"]
+  spec_sheets varchar [note: "Array of URLs to specification/datasheet documents"]
+  images varchar [note: "Array of URLs to component images"]
+  capacity decimal [note: "Capacity specification (e.g. port count for a cable)"]
+  capacity_units varchar [note: "Units for the capacity value"]
+  size decimal [note: "Size specification"]
+  size_units varchar [note: "Units for the size value"]
+}
+
+Table physical_component_model_parameters {
+  id uuid [pk]
+  physical_component_model_id uuid [note: "The 3D model this parameter belongs to"]
+  display_name varchar
+  parameter_type varchar [note: "Type of parameter (e.g. angle, length, boolean)"]
+  parameter_unit varchar [note: "Unit of measurement for this parameter"]
+  default_value varchar [note: "Default value for this parameter"]
+}
+
+Table report_items {
+  id uuid [pk]
+  report_id uuid [note: "The report this item belongs to"]
+  created_by varchar
+  created_on timestamp
+  deleted_by varchar [note: "Username of who deleted this item"]
+  deleted_on timestamp [note: "Timestamp when soft-deleted"]
+  display_name varchar
+  file_path varchar [note: "Storage path to this report item file"]
+  file_type varchar [note: "Type/format of this file"]
+  is_deleted boolean [note: "Whether this item has been soft-deleted"]
+  report_item_types varchar [note: "Array of type classifications for this item"]
+}
+
+Table planes {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  model_id uuid [note: "The 3D model this plane belongs to"]
+  created_by varchar
+  created_on timestamp
+  display_name varchar
+  is_preset boolean [note: "Whether this is a system-created default plane"]
+  is_public boolean [note: "Whether visible to all users with model access"]
+  last_edited_by varchar
+  last_edited_on timestamp
+  point_1 json [note: "First 3D point defining the plane"]
+  point_2 json [note: "Second 3D point defining the plane"]
+  point_3 json [note: "Third 3D point defining the plane"]
+}
+
+Table reports {
+  id uuid [pk]
+  created_by varchar
+  created_on timestamp
+  delivered_on timestamp [note: "Timestamp when the report was delivered to the customer"]
+  display_name varchar
+  ordered_on timestamp [note: "Timestamp when the report was ordered"]
+  request_details varchar [note: "JSON object with details of what was requested"]
+  requested_by_company varchar [note: "Name of the company that requested the report"]
+  requested_by_username varchar [note: "Username of the person who requested the report"]
+  total_asset_count int [note: "Total number of assets included in the report"]
+  unique_asset_count int [note: "Number of unique assets (deduplicated) in the report"]
+}
+
+Table revisions {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  model_id uuid [note: "The 3D model this revision is applied to"]
+  created_by varchar
+  created_on timestamp
+  deleted_by varchar [note: "Username of who deleted this revision"]
+  deleted_on timestamp [note: "Timestamp when soft-deleted"]
+  display_name varchar
+  is_deleted boolean [note: "Whether this revision has been soft-deleted"]
+  is_preset boolean [note: "Whether this is a system-created default revision"]
+  is_public boolean [note: "Whether visible to all users with model access"]
+  last_edited_by varchar
+  last_edited_on timestamp
+  tenant_id uuid [note: "Tenant this revision belongs to"]
+  customer_data jsonb [note: "JSON object with customer-specific metadata"]
+  revision_type varchar [note: "Type of revision (e.g. design, as_built, proposed)"]
+  creator_company_id uuid [note: "Company that created this revision"]
+  design_state varchar [note: "Current state of the design (e.g. draft, submitted, approved"]
+}
+
+Table sites {
+  id uuid [pk]
+  display_id varchar [note: "Human-readable site identifier"]
+  site_name varchar [note: "Name of the site"]
+  address_street varchar [note: "Street address"]
+  address_state varchar [note: "State or province"]
+  address_region varchar [note: "Geographic region"]
+  address_zip varchar [note: "Postal/ZIP code"]
+  latitude float [note: "Geographic latitude"]
+  longitude float [note: "Geographic longitude"]
+  site_owner_id uuid [note: "Company that owns this site"]
+  site_controller varchar [note: "Entity responsible for managing the site"]
+  site_status varchar [note: "Current operational status of the site"]
+  has_backhaul boolean [note: "Whether the site has backhaul connectivity"]
+  acma_id varchar [note: "Australian Communications and Media Authority registration I"]
+  rfnsa_id varchar [note: "Radio Frequency National Site Archive identifier (Australia)"]
+  landowner varchar [note: "Name of the land owner"]
+  integration_id varchar [note: "External system integration identifier"]
+  terrain_category decimal [note: "Terrain classification for wind load calculations"]
+}
+
+Table site_custom_fields {
+  id uuid [pk]
+  data_type varchar [note: "The data type of the field (e.g. string, integer, float, boo"]
+  input_type varchar [note: "UI input type (e.g. text, dropdown, checkbox)"]
+  display_name varchar
+  source_name varchar [note: "Internal/API name for the field"]
+  allowed_values varchar [note: "Array of permitted values for dropdown/list fields"]
+  company_id uuid [note: "The company that defined this custom field"]
+  is_editable boolean [note: "Whether users can edit this field value"]
+  is_hidden boolean [note: "Whether this field is hidden from standard views"]
+  in_table boolean [note: "Whether this field appears in table/grid views"]
+}
+
+Table vertical_segments {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  model_id uuid [note: "The 3D model this segment belongs to"]
+  created_by varchar
+  created_on timestamp
+  display_name varchar
+  is_preset boolean [note: "Whether this is a system-created default segment"]
+  is_public boolean [note: "Whether visible to all users with model access"]
+  last_edited_by varchar
+  last_edited_on timestamp
+  bottom_elevation decimal [note: "Elevation of the bottom of this segment in model units"]
+  top_elevation decimal [note: "Elevation of the top of this segment in model units"]
+  tenant_id uuid [note: "Tenant scoping for this segment"]
+  parent_measurement_id uuid [note: "Parent measurement this segment belongs to"]
+  parent_group varchar [note: "Display group name"]
+  has_level boolean [note: "Whether this segment has a level/elevation reference"]
+}
+
+Table twist_plumbs {
+  measurement_id uuid [note: "The measurement record this twist/plumb data belongs to"]
+  top_loop_id uuid [note: "The upper cross-section measurement loop"]
+  bottom_loop_id uuid [note: "The lower cross-section measurement loop"]
+  plumb_magnitude decimal [note: "Magnitude of the tower lean (distance in meters)"]
+  plumb_bearing decimal [note: "Direction of the lean (compass bearing in degrees)"]
+  twist_degrees decimal [note: "Amount of rotation between the two loops in degrees"]
+}
+
+Table vertical_segment_tasks {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  model_id uuid [note: "The 3D model being processed"]
+  created_on timestamp
+  details varchar [note: "JSON object with task configuration and details"]
+  status_update_date timestamp [note: "Timestamp of the last status update"]
+  task_status varchar [note: "Current task status (e.g. pending, running, completed, faile"]
+}
+
+Table weblinks {
+  id uuid [pk]
+  asset_version_id uuid [note: "The asset version this link is attached to"]
+  link_text varchar [note: "Display label for the URL"]
+  link_url varchar [note: "The full URL of the external resource"]
+}
+
+Table sketches {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  model_id uuid [note: "The 3D model this sketch belongs to"]
+  plane_id uuid [note: "The reference plane this sketch is drawn on"]
+  created_by varchar
+  created_on timestamp
+  display_name varchar
+  is_preset boolean [note: "Whether this is a system-created default sketch"]
+  is_public boolean [note: "Whether visible to all users with model access"]
+  labels varchar [note: "JSON array of text label annotations"]
+  last_edited_by varchar
+  last_edited_on timestamp
+  measurements varchar [note: "JSON array of measurement annotations on this sketch"]
+  points varchar [note: "JSON array of point annotations on this sketch"]
+  shapes varchar [note: "JSON array of shape objects (lines, polygons, circles) drawn"]
+  sketch_type varchar [note: "Type of sketch (e.g. floor_plan, elevation, detail)"]
+}
+
+Table volume_inferences {
+  id uuid [pk]
+  model_id uuid [note: "The 3D model these inferences are for"]
+  created_by varchar
+  created_on timestamp
+  display_name varchar
+  equipment_id varchar [note: "Predicted physical component ID"]
+  is_preset boolean [note: "Whether this is a system-created default inference"]
+  is_public boolean [note: "Whether visible to all users"]
+  labeler_equipment_id varchar [note: "Equipment ID assigned by the human labeler"]
+  last_edited_by varchar
+  last_edited_on timestamp
+  position json [note: "Predicted 3D position in model space"]
+  qa_equipment_id varchar [note: "Equipment ID confirmed by QA review"]
+  rotation json [note: "Predicted rotation (x, y, z) in degrees"]
+  rotation_order varchar [note: "Order in which rotation axes are applied (e.g. XYZ)"]
+  scale json [note: "Predicted scale factor"]
+  selected_inference_equipment boolean [note: "The final selected equipment after review"]
+  volume_type varchar [note: "Type of volume being inferred (e.g. antenna, mount, cable)"]
+  center_height decimal [note: "Height of the center of the volume above ground in meters"]
+  dimension_1 decimal [note: "First dimension of the inferred volume"]
+  dimension_2 decimal [note: "Second dimension of the inferred volume"]
+  dimension_3 decimal [note: "Third dimension of the inferred volume"]
+  downtilt decimal [note: "Predicted mechanical downtilt angle in degrees"]
+  roll decimal [note: "Predicted roll angle in degrees"]
+  azimuth decimal [note: "Predicted compass bearing/azimuth in degrees"]
+  aiml_model_name varchar [note: "Name of the AI/ML model that generated this inference"]
+  aiml_model_version varchar [note: "Version of the AI/ML model"]
+}
+
+Table tenants {
+  id uuid [pk]
+  parent_company_id uuid [note: "The company that owns/hosts the tenanted data"]
+  tenant_company_id uuid [note: "The company that is the tenant (consuming the data)"]
+}
+
+Table tags {
+  id uuid [pk]
+  category varchar [note: "High-level category this tag belongs to"]
+  display_type varchar [note: "How this tag is rendered in the UI (e.g. badge, icon, label)"]
+  tag_value varchar [note: "The tag value or label text"]
+  show_header boolean [note: "Whether to show a header for this tag category in the UI"]
+}
+
+Table twist_plumb_loops {
+  measurement_id uuid [note: "The measurement this loop belongs to"]
+  position varchar [note: "Vertical position (elevation) of this loop on the tower"]
+  centroid jsonb [note: "3D centroid point of this cross-sectional loop"]
+  origin jsonb [note: "Origin reference point for this loop"]
+  azimuth decimal [note: "Compass bearing/orientation of this loop in degrees"]
+}
+
+Table volumes {
+  id uuid [pk]
+  ddb_id varchar [note: "Legacy identifier from an external database"]
+  model_id uuid [note: "The 3D model this volume is placed in"]
+  created_by varchar
+  created_on timestamp
+  display_name varchar
+  equipment_id varchar [note: "The physical component catalog entry this volume represents"]
+  is_preset boolean [note: "Whether this is a system-created default volume"]
+  is_public boolean [note: "Whether visible to all users with model access"]
+  labeler_equipment_id varchar [note: "Equipment ID as identified by the human labeler"]
+  last_edited_by varchar
+  last_edited_on timestamp
+  position json [note: "3D position (x, y, z) of the volume center in model space"]
+  qa_equipment_id varchar [note: "Equipment ID as confirmed by QA review"]
+  rotation json [note: "Rotation angles (x, y, z) of the volume in degrees"]
+  rotation_order varchar [note: "Order in which rotation axes are applied"]
+  scale json [note: "Scale factors applied to the volume dimensions"]
+  selected_inference_equipment boolean [note: "Final selected equipment after inference review"]
+  volume_type varchar [note: "Category of volume (e.g. antenna, mount, cable, power, struc"]
+  center_height decimal [note: "Height of the volume center above ground in meters"]
+  dimension_1 decimal [note: "Primary dimension of the volume"]
+  dimension_2 decimal [note: "Secondary dimension of the volume"]
+  dimension_3 decimal [note: "Tertiary dimension of the volume"]
+  downtilt decimal [note: "Mechanical downtilt angle of the equipment in degrees"]
+  roll decimal [note: "Roll angle of the equipment in degrees"]
+  azimuth decimal [note: "Compass bearing/azimuth the equipment faces in degrees"]
+  tenant_id uuid [note: "Tenant scoping for this volume"]
+  aperture_id uuid [note: "Associated aperture if this volume passes through an opening"]
+  physical_component_id uuid [note: "The physical component catalog entry"]
+  physical_component_parameters jsonb [note: "JSON object of parameter values for parametric components"]
+  installation_status varchar [note: "Status of physical installation (e.g. installed, proposed, r"]
+  built_from_design varchar [note: "Whether this volume was placed based on a design revision"]
+  physical_component_model_id uuid [note: "Specific 3D model variant of the physical component"]
+  parent_measurement_id uuid [note: "Parent measurement group this volume belongs to"]
+  has_level boolean [note: "Whether this volume has a level/elevation reference"]
+  parent_group varchar [note: "Display group name for organizational purposes"]
+}
+
+Table asset_version_note_readers {
+  asset_version_note_id uuid [note: "The note that was read"]
+  username varchar [note: "The user who read it"]
+  created_on timestamp [note: "Timestamp when the note was marked as read"]
+}
+
+Table cad_task_revisions {
+  cad_task_id uuid [note: "The CAD export task"]
+  revision_id uuid [note: "A revision included in this CAD export"]
+}
+
+Table revision_items {
+  id uuid [pk]
+  revision_id uuid [note: "The revision this item belongs to"]
+  volume_id uuid [note: "The volume being added, removed, or modified"]
+  action_type varchar [note: "The change action (e.g. add, remove, modify, retain)"]
+  parent_id uuid [note: "The previous/existing volume being replaced (for modify acti"]
+  hidden_id uuid [note: "A volume hidden by this revision item"]
+  modified_after_confirmation boolean [note: "Whether this item was changed after being confirmed"]
+  construction_status varchar [note: "Physical construction state (e.g. proposed, under_constructi"]
+  area_id uuid [note: "Associated area polygon for this revision item"]
+}
+
+Table physical_component_model_parameter_values {
+  id uuid [pk]
+  physical_component_model_parameter_id uuid [note: "The parameter definition this value is for"]
+  volume_id uuid [note: "The volume instance this parameter value applies to"]
+  value varchar [note: "The parameter value"]
+}
+
+Table site_custom_field_values {
+  id uuid [pk]
+  site_id uuid [note: "The site this value belongs to"]
+  custom_field_id uuid [note: "The custom field definition this value is for"]
+  group_id uuid [note: "Optional grouping identifier for multi-value fields"]
+  unit varchar [note: "Unit of measurement for numeric values"]
+  value_integer int
+  value_float float
+  value_string varchar
+  value_boolean boolean
+  value_date date
+  value_string_list varchar [note: "Array of string values for list-type fields"]
+}
+
+Ref: areas.model_id > models.id
+Ref: asset_custom_field_values.asset_id > assets.id
+Ref: asset_custom_field_values.custom_field_id > asset_custom_fields.id
+Ref: asset_custom_fields.company_id > companies.id
+Ref: asset_items.asset_id > assets.id
+Ref: asset_items.parent_asset_item_id > asset_items.id
+Ref: asset_items.physical_component_id > physical_components.id
+Ref: asset_version_custom_field_values.asset_version_id > asset_versions.id
+Ref: asset_version_custom_field_values.custom_field_id > asset_version_custom_fields.id
+Ref: asset_version_custom_fields.company_id > companies.id
+Ref: asset_version_notes.asset_version_id > asset_versions.id
+Ref: assets.site_id > sites.id
+Ref: apertures.owner_company_id > companies.id
+Ref: asset_version_company_access_rights.asset_version_id > asset_versions.id
+Ref: asset_version_company_access_rights.company_id > companies.id
+Ref: asset_versions.asset_id > assets.id
+Ref: asset_versions.base_model_id > models.id
+Ref: asset_versions.draft_model_id > models.id
+Ref: asset_versions.dsp_id > companies.id
+Ref: asset_versions.synced_to_asset_version_id > asset_versions.id
+Ref: asset_versions.synced_to_model_id > models.id
+Ref: collections.model_id > models.id
+Ref: collections.parent_id > collections.id
+Ref: collections.tenant_id > tenants.id
+Ref: bim_exports.model_id > models.id
+Ref: bim_exports.task_id > bim_export_tasks.id
+Ref: cad_tasks.model_id > models.id
+Ref: collection_items.collection_id > collections.id
+Ref: collection_items.file_id > files.id
+Ref: entity_tags.measurement_id > measurements.id
+Ref: entity_tags.plane_id > planes.id
+Ref: entity_tags.point_id > points.id
+Ref: entity_tags.revision_id > revisions.id
+Ref: entity_tags.revision_item_id > revision_items.id
+Ref: entity_tags.tag_id > tags.id
+Ref: entity_tags.vertical_segment_id > vertical_segments.id
+Ref: entity_tags.volume_id > volumes.id
+Ref: favorite_assets.asset_id > assets.id
+Ref: ground_spaces.model_id > models.id
+Ref: image_tags.asset_version_id > asset_versions.id
+Ref: matched_volumes.current_asset_version_id > asset_versions.id
+Ref: matched_volumes.current_volume_id > volumes.id
+Ref: matched_volumes.matched_to_asset_version_id > asset_versions.id
+Ref: matched_volumes.matched_to_volume_id > volumes.id
+Ref: models.parent_model_id > models.id
+Ref: models.synced_to_id > models.id
+Ref: georef_tasks.model_id > models.id
+Ref: files.model_id > models.id
+Ref: measurement_segments.measurement_id > measurements.id
+Ref: measurements.model_id > models.id
+Ref: measurements.parent_measurement_id > measurements.id
+Ref: measurements.tenant_id > tenants.id
+Ref: measurements.parent_measurement_id > measurements.id
+Ref: physical_component_models.company_id > companies.id
+Ref: physical_component_models.physical_component_id > physical_components.id
+Ref: physical_component_overrides.company_id > companies.id
+Ref: physical_component_overrides.physical_component_id > physical_components.id
+Ref: physical_component_model_tasks.company_id > companies.id
+Ref: physical_component_model_tasks.physical_component_id > physical_components.id
+Ref: physical_component_model_tasks.physical_component_model_id > physical_component_models.id
+Ref: report_company_access_rights.company_id > companies.id
+Ref: report_company_access_rights.report_id > reports.id
+Ref: points.model_id > models.id
+Ref: points.parent_measurement_id > measurements.id
+Ref: points.tenant_id > tenants.id
+Ref: physical_component_model_parameters.physical_component_model_id > physical_component_models.id
+Ref: report_items.report_id > reports.id
+Ref: planes.model_id > models.id
+Ref: revisions.creator_company_id > companies.id
+Ref: revisions.model_id > models.id
+Ref: revisions.tenant_id > tenants.id
+Ref: sites.site_owner_id > companies.id
+Ref: site_custom_fields.company_id > companies.id
+Ref: vertical_segments.model_id > models.id
+Ref: vertical_segments.parent_measurement_id > measurements.id
+Ref: vertical_segments.tenant_id > tenants.id
+Ref: twist_plumbs.bottom_loop_id > measurements.id
+Ref: twist_plumbs.measurement_id > measurements.id
+Ref: twist_plumbs.top_loop_id > measurements.id
+Ref: vertical_segment_tasks.model_id > models.id
+Ref: weblinks.asset_version_id > asset_versions.id
+Ref: sketches.model_id > models.id
+Ref: sketches.plane_id > planes.id
+Ref: tenants.parent_company_id > companies.id
+Ref: tenants.tenant_company_id > companies.id
+Ref: twist_plumb_loops.measurement_id > measurements.id
+Ref: volumes.aperture_id > apertures.id
+Ref: volumes.model_id > models.id
+Ref: volumes.parent_measurement_id > measurements.id
+Ref: volumes.physical_component_id > physical_components.id
+Ref: volumes.physical_component_model_id > physical_component_models.id
+Ref: volumes.tenant_id > tenants.id
+Ref: asset_version_note_readers.asset_version_note_id > asset_version_notes.id
+Ref: cad_task_revisions.cad_task_id > cad_tasks.id
+Ref: cad_task_revisions.revision_id > revisions.id
+Ref: revision_items.area_id > areas.id
+Ref: revision_items.hidden_id > volumes.id
+Ref: revision_items.parent_id > volumes.id
+Ref: revision_items.revision_id > revisions.id
+Ref: revision_items.volume_id > volumes.id
+Ref: physical_component_model_parameter_values.physical_component_model_parameter_id > physical_component_model_parameters.id
+Ref: physical_component_model_parameter_values.volume_id > volumes.id
+Ref: site_custom_field_values.custom_field_id > site_custom_fields.id
+Ref: site_custom_field_values.site_id > sites.id
