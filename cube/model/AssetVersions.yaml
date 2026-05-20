@@ -20,7 +20,15 @@ cubes:
     measures:
       - name: count
         type: count
-        description: "Total number of asset versions"
+        description: "Total number of asset version records. Each inspection or survey of an asset is one row. This is NOT a count of distinct assets or sites."
+      - name: asset_count
+        sql: asset_id
+        type: count_distinct
+        description: "Number of distinct assets (structures) that have at least one version"
+      - name: site_count
+        sql: "{Assets}.site_id"
+        type: count_distinct
+        description: "Number of distinct sites that have been surveyed (counts unique site IDs across all versions)"
       - name: avg_price_to_customer
         sql: price_to_customer
         type: avg

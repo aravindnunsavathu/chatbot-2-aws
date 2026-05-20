@@ -214,10 +214,12 @@ def build_cube_view_schema(meta: dict, view_name: str) -> str:
             continue
         lines = [f"View: {view_name}", "Measures:"]
         for m in cube.get("measures", []):
-            lines.append(f"  {m['name']} — {m.get('title', '')}")
+            desc = m.get("description") or m.get("shortTitle") or m.get("title", "")
+            lines.append(f"  {m['name']} — {desc}")
         lines.append("Dimensions:")
         for d in cube.get("dimensions", []):
-            lines.append(f"  {d['name']} ({d.get('type','string')}) — {d.get('title', '')}")
+            desc = d.get("description") or d.get("shortTitle") or d.get("title", "")
+            lines.append(f"  {d['name']} ({d.get('type','string')}) — {desc}")
         return "\n".join(lines)
     return ""
 
@@ -252,7 +254,15 @@ Output a JSON object in this exact format:
 }}
 
 Filter operators: equals, notEquals, contains, notContains, gt, gte, lt, lte, set, notSet
-Rules:
+
+IMPORTANT measure grain rules — read carefully before generating the query:
+- The generic 'count' measure counts the view's PRIMARY records (e.g. EquipmentVolumes.count = number of equipment volume placements, NOT sites or assets)
+- To answer "how many sites have X": use the site_count measure if available; otherwise add a Sites_site_name dimension so each result row represents one site
+- To answer "how many assets have X": use the asset_count measure if available; otherwise add an Assets_display_id or Assets_asset_name dimension
+- NEVER use EquipmentVolumes.count alone to answer "how many sites" or "how many assets" questions
+- When the question asks to COUNT a specific entity (sites, assets, companies), prefer a *_count measure scoped to that entity over the generic count measure
+
+General rules:
 - Use ONLY measures and dimensions listed in the schema above
 - Add filters when the question specifies a status, type, name, or date range
 - Add order when question asks for top/bottom/most/least
@@ -606,7 +616,7 @@ if question := st.chat_input("Ask a question about your data..."):
                 status.write("Running Cube query...")
                 columns, rows, error = run_cube_query(cube_query)
                 tables = [view]
-                sql = json.dumps(cube_query, indent=2)
+                sql = f"Cube view: {view}\n\n{view_schema}\n\nQuery:\n{json.dumps(cube_query, indent=2)}"
 
             else:
                 status.write("Identifying relevant tables...")
@@ -647,7 +657,7 @@ if question := st.chat_input("Ask a question about your data..."):
 
         if cube_query:
             with st.expander("Cube query"):
-                st.code(sql, language="json")
+                st.code(json.dumps(cube_query, indent=2), language="json")
         elif sql:
             with st.expander("SQL query"):
                 st.code(sql, language="sql")

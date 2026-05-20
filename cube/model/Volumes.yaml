@@ -26,7 +26,7 @@ cubes:
     measures:
       - name: count
         type: count
-        description: "Total number of volumes"
+        description: "Total number of individual equipment volume placements. Each physical piece of equipment placed on a structure is counted as one row. This is NOT a count of distinct sites, assets, or asset versions — it counts individual equipment pieces."
 
     dimensions:
       - name: id

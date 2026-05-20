@@ -38,3 +38,10 @@ views:
         includes:
           - site_name
           - address_state
+
+      - join_path: Volumes.PhysicalComponents
+        prefix: true
+        includes:
+          - manufacturer
+          - model_identifier
+          - category

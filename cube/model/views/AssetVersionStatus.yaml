@@ -28,6 +28,8 @@ views:
           - ntp_date
           - rejection_reason
           - count
+          - asset_count
+          - site_count
           - avg_price_to_customer
           - avg_price_to_capture
           - avg_height
