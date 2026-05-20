@@ -24,11 +24,7 @@ cubes:
       - name: asset_count
         sql: asset_id
         type: count_distinct
-        description: "Number of distinct assets (structures) that have at least one version"
-      - name: site_count
-        sql: "{Assets}.site_id"
-        type: count_distinct
-        description: "Number of distinct sites that have been surveyed (counts unique site IDs across all versions)"
+        description: "Number of distinct assets (structures) that have at least one version. Use this to count assets, not the generic count measure."
       - name: avg_price_to_customer
         sql: price_to_customer
         type: avg
