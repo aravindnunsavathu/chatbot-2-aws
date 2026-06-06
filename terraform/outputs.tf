@@ -43,7 +43,7 @@ output "step_1_push_image" {
     aws ecr get-login-password --region ${var.aws_region} | \
       docker login --username AWS --password-stdin ${module.ecr.repository_url}
 
-    docker build -t ${var.project_name} .
+    docker build --platform linux/amd64 -t ${var.project_name} .
     docker tag ${var.project_name}:latest ${module.ecr.repository_url}:latest
     docker push ${module.ecr.repository_url}:latest
   EOT
