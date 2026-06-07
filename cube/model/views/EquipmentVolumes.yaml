@@ -51,3 +51,4 @@ views:
           - manufacturer
           - model_identifier
           - category
+          - total_weight_kg

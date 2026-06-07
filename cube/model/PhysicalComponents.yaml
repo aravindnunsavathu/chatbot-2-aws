@@ -7,6 +7,10 @@ cubes:
       - name: count
         type: count
         description: "Total number of physical components"
+      - name: total_weight_kg
+        sql: weight_kg
+        type: sum
+        description: "Total weight of all matching physical components in kilograms. Use via a Volumes join to sum installed equipment weight per tower."
 
     dimensions:
       - name: id
