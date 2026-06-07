@@ -18,7 +18,6 @@ views:
           - roll
           - count
           - min_volume_created_on
-          - total_weight_kg
 
       - join_path: Volumes.AssetVersions
         prefix: true
