@@ -10,6 +10,9 @@ cubes:
       - name: Models
         sql: "{TABLE}.model_id = {Models}.id"
         relationship: many_to_one
+      - name: AssetVersions
+        sql: "{AssetVersions}.base_model_id = {TABLE}.model_id"
+        relationship: many_to_one
       - name: Tenants
         sql: "{TABLE}.tenant_id = {Tenants}.id"
         relationship: many_to_one
