@@ -138,6 +138,16 @@ terraform -chdir=terraform output -raw step_2_deploy_ec2 | bash
 
 ## Tearing down
 
+**Before destroying**, create a fresh dump from your local PostgreSQL so you can restore RDS on the next deploy:
+
+```bash
+pg_dump -h localhost -p 5433 -U aravindnunsavathu \
+  -n fivebyfive --no-owner -Fc fivebyfiveqa \
+  > ~/Downloads/fivebyfive_dump.dump
+```
+
+Then destroy:
+
 ```bash
 cd terraform
 terraform destroy
@@ -195,7 +205,7 @@ psql -h $(grep DB_HOST /opt/chatbot.env | cut -d= -f2) \
 
 ### Redeploy step 5 — restore the database from dump
 
-You need the dump file at `~/Downloads/fivebyfive_dump.dump` (created with `pg_dump -Fc`).
+You need the dump file at `~/Downloads/fivebyfive_dump.dump`. If you don't have it, see the **Tearing down** section above for the `pg_dump` command — run it against your local PostgreSQL before destroying.
 
 Open **two terminals** from the `chatbot-2-aws` directory:
 

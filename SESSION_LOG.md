@@ -604,6 +604,8 @@ Changes made:
 
 Commits: `49cf60b`, `d7e37ee` on `main`.
 
+Also added dump file creation step to the **Tearing down** section (`pg_dump` command with correct flags) and updated Redeploy step 5 to point back to it instead of a vague parenthetical. Commit: see Phase 13 follow-up.
+
 ---
 
 ## Important lessons learned
