@@ -608,6 +608,95 @@ Also added dump file creation step to the **Tearing down** section (`pg_dump` co
 
 ---
 
+## Phase 14 — Cube schema expansion + deploy fixes
+
+### New Cube views and measures (v1.4.0)
+
+Added support for capacity, RAD count, equipment age, and coverage gap queries:
+
+| File | Change |
+|---|---|
+| `cube/model/Volumes.yaml` | Added `min_volume_created_on` measure |
+| `cube/model/AssetVersions.yaml` | Added `total_rad_count` (sum) measure |
+| `cube/model/PhysicalComponents.yaml` | Added `total_weight_kg` (sum) measure |
+| `cube/model/views/TowerCapacity.yaml` | **New view** — capacity utilization per tower |
+| `cube/model/views/EquipmentVolumes.yaml` | Added capacity fields + `min_volume_created_on` + `total_weight_kg` |
+| `cube/model/views/AssetVersionStatus.yaml` | Added `total_rad_count` |
+| `cube/model/views/DesignRevisions.yaml` | Added `last_edited_on` + `asset_count` |
+| `app.py` | Added city-filtering and oldest-equipment few-shot SQL examples; added `st.map()` for coverage gap questions |
+
+### Issue: Cube compile error — measure referencing foreign cube
+
+**Error:**
+```
+Member 'Volumes.total_weight_kg' references foreign cubes: PhysicalComponents.
+Please split and move this definition to corresponding cubes.
+```
+**Cause:** Cube does not allow a measure's `sql` field to reference another cube via `{CubeName}.column`. The measure must live in the cube that owns the column.
+
+**Fix:** Moved `total_weight_kg` from `Volumes.yaml` to `PhysicalComponents.yaml`. Exposed it in views via the `Volumes.PhysicalComponents` join path.
+
+**Secondary cause:** `total_weight_kg` was also accidentally left in the `Volumes` section of `EquipmentVolumes.yaml` (where it no longer existed), causing the same error to persist after the first fix. Removed the stale reference.
+
+### Issue: Cube metastore cache serving stale compiled schema
+
+After fixing the YAML, Cube continued to throw the same compile error because `.cubestore` had cached the old compiled schema.
+
+**Fix:**
+```bash
+sudo rm -rf /opt/chatbot-2-aws/cube/.cubestore
+docker restart cube
+```
+
+### Issue: git pull on EC2 didn't pick up new files during deploy
+
+The `start_all.sh` script runs `git pull` before starting containers, but if the commit was pushed after the deploy started (or the pull failed silently), new files are missing on EC2.
+
+**Fix:** SSH in and pull manually, then restart only the affected container:
+```bash
+cd /opt/chatbot-2-aws && sudo git pull origin main
+docker restart cube   # for Cube YAML changes only
+sudo /opt/start_all.sh   # for app.py changes (requires image rebuild)
+```
+
+### Issue: `step_2_deploy_ec2` only shows JSON — no visible progress
+
+The `aws ssm send-command` output is JSON (the CommandId). The command runs asynchronously on EC2 with no terminal feedback. Use SSH + `sudo /opt/start_all.sh` directly for visible real-time output.
+
+### Issue: Docker image built for ARM64 instead of linux/amd64
+
+**Error on EC2:**
+```
+no matching manifest for linux/amd64 in the manifest list entries
+```
+**Cause:** `docker build --platform linux/amd64` does not reliably cross-compile on Apple Silicon when using the standard build/tag/push flow.
+
+**Fix:** Use `docker buildx build --push` which handles cross-compilation correctly:
+```bash
+docker buildx build \
+  --platform linux/amd64 \
+  --push \
+  -t <ecr-url>:latest \
+  .
+```
+Updated `terraform/outputs.tf` `step_1_push_image` output to use this command permanently. Commit: `ccef995`.
+
+### How to verify the correct image is running on EC2
+
+Compare the digest of the running container against the latest ECR push:
+```bash
+# Running container digest
+docker inspect chatbot --format 'Started: {{.State.StartedAt}}  Image: {{.Image}}'
+
+# Latest ECR digest
+aws ecr describe-images --repository-name fivebyfive --region us-east-1 \
+  --query 'sort_by(imageDetails,&imagePushedAt)[-1].{Pushed:imagePushedAt,Digest:imageDigest}' \
+  --output table
+```
+Digests must match. If they don't, rebuild with `buildx` and re-run `sudo /opt/start_all.sh`.
+
+---
+
 ## Important lessons learned
 
 1. **`docker restart` does not re-read `--env-file`** — must run `/opt/start_chatbot.sh` to pick up env changes
@@ -622,3 +711,8 @@ Also added dump file creation step to the **Tearing down** section (`pg_dump` co
 10. **Titan Embeddings v2 max dimension is 1024, not 1536** — v1 outputs 1536d; v2 supports only 256, 512, or 1024
 11. **Drop old embedding columns before re-running setup_vectors.py** — `ADD COLUMN IF NOT EXISTS` silently skips if wrong-dimension column already exists
 12. **Use `--entrypoint python3` to run scripts in the container** — `ENTRYPOINT` in Dockerfile means commands passed to `docker run` are appended, not replacing the entrypoint
+13. **Cube measures cannot reference foreign cube columns** — `sql: "{OtherCube}.column"` is invalid; the measure must live in the cube that owns the column
+14. **Cube metastore caches compiled schema** — after fixing YAML errors, delete `.cubestore` and restart: `sudo rm -rf /opt/chatbot-2-aws/cube/.cubestore && docker restart cube`
+15. **`git pull` in `start_all.sh` can miss files if the commit was in-flight** — SSH in and pull manually if new files are missing on EC2
+16. **`aws ssm send-command` is async** — use `sudo /opt/start_all.sh` over SSH directly for real-time output and confirmation
+17. **`docker build --platform linux/amd64` doesn't reliably cross-compile on Apple Silicon** — always use `docker buildx build --platform linux/amd64 --push` instead
