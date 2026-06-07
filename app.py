@@ -145,7 +145,52 @@ HAVING COALESCE(SUM(pc.weight_kg), 0) / av.structure_design_capacity < 0.30
 ORDER BY capacity_pct ASC
 LIMIT 200;
 
--- Example 7: city-level filtering — sites have no city column, match on site_name and address_region
+-- Example 7: available space per tower — structure design capacity minus installed equipment weight
+Q: How much available space does each site have?
+SQL:
+SELECT a.display_id, a.asset_name, s.site_name, s.address_state,
+       av.structure_design_capacity,
+       COALESCE(SUM(pc.weight_kg), 0) AS total_installed_weight_kg,
+       av.structure_design_capacity - COALESCE(SUM(pc.weight_kg), 0) AS available_capacity_kg,
+       ROUND(COALESCE(SUM(pc.weight_kg), 0) / NULLIF(av.structure_design_capacity, 0) * 100, 1) AS capacity_pct
+FROM fivebyfive.asset_versions av
+JOIN fivebyfive.assets a ON a.id = av.asset_id
+JOIN fivebyfive.sites s ON s.id = a.site_id
+JOIN fivebyfive.models m ON m.id = av.base_model_id
+LEFT JOIN fivebyfive.volumes v ON v.model_id = m.id AND v.installation_status = 'installed'
+LEFT JOIN fivebyfive.physical_components pc ON pc.id = v.physical_component_id
+WHERE av.active = true
+  AND av.structure_design_capacity IS NOT NULL
+  AND av.structure_design_capacity > 0
+GROUP BY a.id, a.display_id, a.asset_name, s.site_name, s.address_state, av.structure_design_capacity
+ORDER BY available_capacity_kg DESC
+LIMIT 200;
+
+-- Example 8: design revision state counts — actual design_state values are DRAFT (pending/in-progress) and CONFIRMED (approved/complete)
+Q: How many towers have a pending design simulation?
+SQL:
+SELECT COUNT(DISTINCT a.id) AS tower_count
+FROM fivebyfive.revisions r
+JOIN fivebyfive.models mo ON mo.id = r.model_id
+JOIN fivebyfive.asset_versions av ON av.base_model_id = mo.id AND av.active = true
+JOIN fivebyfive.assets a ON a.id = av.asset_id
+WHERE r.design_state = 'DRAFT'
+  AND r.is_deleted = false;
+
+-- Example 9: design simulation dwell time — DRAFT=pending, CONFIRMED=approved; last_edited_on is used as approval timestamp proxy
+Q: How long is a design simulation sitting before it is approved?
+SQL:
+SELECT ROUND(AVG(EXTRACT(EPOCH FROM (last_edited_on - created_on)) / 86400.0), 1) AS avg_days_to_confirmation,
+       MIN(EXTRACT(EPOCH FROM (last_edited_on - created_on)) / 86400.0)::int AS min_days,
+       MAX(EXTRACT(EPOCH FROM (last_edited_on - created_on)) / 86400.0)::int AS max_days,
+       COUNT(*) AS confirmed_revision_count
+FROM fivebyfive.revisions
+WHERE design_state = 'CONFIRMED'
+  AND is_deleted = false
+  AND last_edited_on IS NOT NULL
+  AND last_edited_on > created_on;
+
+-- Example 11: city-level filtering — sites have no city column, match on site_name and address_region
 Q: Which towers in Durham, NC could fit a new antenna?
 SQL:
 SELECT a.display_id, a.asset_name, s.site_name, s.address_state,
@@ -163,7 +208,7 @@ GROUP BY a.id, a.display_id, a.asset_name, s.site_name, s.address_state,
 ORDER BY current_volume_count ASC
 LIMIT 200;
 
--- Example 8: oldest equipment — order towers by earliest volume placement date
+-- Example 12: oldest equipment — order towers by earliest volume placement date
 Q: Which towers have the oldest equipment?
 SQL:
 SELECT a.display_id, a.asset_name, s.site_name, s.address_state,

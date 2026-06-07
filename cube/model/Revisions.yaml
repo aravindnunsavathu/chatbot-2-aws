@@ -18,6 +18,10 @@ cubes:
       - name: count
         type: count
         description: "Total number of revisions"
+      - name: avg_days_to_confirmation
+        sql: "CASE WHEN design_state = 'CONFIRMED' THEN EXTRACT(EPOCH FROM (last_edited_on - created_on)) / 86400.0 END"
+        type: avg
+        description: "Average days from revision creation to confirmation (CONFIRMED state). Use as a proxy for design simulation approval time."
 
     dimensions:
       - name: id
@@ -86,4 +90,4 @@ cubes:
       - name: design_state
         sql: design_state
         type: string
-        description: "Current state of the design (e.g. draft, submitted, approved)"
+        description: "Current state of the design. Actual values: DRAFT (in progress / pending), CONFIRMED (approved / complete), LUMEA_OUT_OF_SYNC (external sync issue)."

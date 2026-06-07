@@ -11,6 +11,7 @@ views:
           - created_on
           - last_edited_on
           - count
+          - avg_days_to_confirmation
 
       - join_path: Revisions.AssetVersions
         prefix: true
