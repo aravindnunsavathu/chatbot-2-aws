@@ -33,6 +33,7 @@ views:
           - avg_price_to_capture
           - avg_height
           - total_price_to_customer
+          - total_rad_count
 
       - join_path: AssetVersions.Assets
         prefix: true

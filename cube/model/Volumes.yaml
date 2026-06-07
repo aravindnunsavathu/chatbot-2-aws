@@ -27,6 +27,14 @@ cubes:
       - name: count
         type: count
         description: "Total number of individual equipment volume placements. Each physical piece of equipment placed on a structure is counted as one row. This is NOT a count of distinct sites, assets, or asset versions — it counts individual equipment pieces."
+      - name: total_weight_kg
+        sql: "{PhysicalComponents}.weight_kg"
+        type: sum
+        description: "Total weight of all installed equipment in kilograms, summed from the physical component catalog."
+      - name: min_volume_created_on
+        sql: created_on
+        type: min
+        description: "Earliest date any volume was placed on this structure — a proxy for the age of the oldest installed equipment."
 
     dimensions:
       - name: id

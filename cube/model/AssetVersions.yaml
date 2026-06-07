@@ -41,6 +41,10 @@ cubes:
         sql: price_to_customer
         type: sum
         description: "Total revenue from asset versions"
+      - name: total_rad_count
+        sql: rad_count
+        type: sum
+        description: "Total number of radiating antenna elements across all asset versions."
 
     dimensions:
       - name: id

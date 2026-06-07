@@ -29,6 +29,17 @@ CUBE_URL       = os.environ.get("CUBE_URL", "http://cube:4000")
 
 VECTOR_TABLES = {"physical_components", "asset_version_notes"}
 
+COVERAGE_GAP_KEYWORDS = {"coverage gap", "coverage gaps", "where do i have", "sparse", "no towers", "no coverage", "geographic distribution", "tower density"}
+
+COVERAGE_GAP_SQL = """
+SELECT a.latitude, a.longitude, a.asset_name, s.site_name, s.address_state, s.address_region
+FROM fivebyfive.assets a
+JOIN fivebyfive.sites s ON s.id = a.site_id
+WHERE a.latitude IS NOT NULL AND a.longitude IS NOT NULL
+ORDER BY s.address_state, s.site_name
+LIMIT 2000
+"""
+
 CATEGORICAL_COLUMNS: list[tuple[str, str]] = [
     ("asset_versions", "packaging_status"),
     ("asset_versions", "processing_status"),
@@ -111,6 +122,39 @@ FROM fivebyfive.companies c
 JOIN fivebyfive.asset_version_company_access_rights avcr ON avcr.company_id = c.id
 GROUP BY c.id, c.display_name
 ORDER BY version_count DESC
+LIMIT 200;
+
+-- Example 6: city-level filtering — sites have no city column, match on site_name and address_region
+Q: Which towers in Durham, NC could fit a new antenna?
+SQL:
+SELECT a.display_id, a.asset_name, s.site_name, s.address_state,
+       av.structure_design_capacity, av.structure_design_height,
+       COUNT(v.id) AS current_volume_count
+FROM fivebyfive.sites s
+JOIN fivebyfive.assets a ON a.site_id = s.id
+JOIN fivebyfive.asset_versions av ON av.asset_id = a.id AND av.active = true
+LEFT JOIN fivebyfive.models m ON m.id = av.base_model_id
+LEFT JOIN fivebyfive.volumes v ON v.model_id = m.id AND v.installation_status = 'installed'
+WHERE s.address_state = 'NC'
+  AND (s.site_name ILIKE '%Durham%' OR s.address_region ILIKE '%Durham%' OR s.address_street ILIKE '%Durham%')
+GROUP BY a.id, a.display_id, a.asset_name, s.site_name, s.address_state,
+         av.structure_design_capacity, av.structure_design_height
+ORDER BY current_volume_count ASC
+LIMIT 200;
+
+-- Example 7: oldest equipment — order towers by earliest volume placement date
+Q: Which towers have the oldest equipment?
+SQL:
+SELECT a.display_id, a.asset_name, s.site_name, s.address_state,
+       MIN(v.created_on) AS oldest_equipment_date,
+       COUNT(v.id) AS volume_count
+FROM fivebyfive.assets a
+JOIN fivebyfive.sites s ON s.id = a.site_id
+JOIN fivebyfive.asset_versions av ON av.asset_id = a.id AND av.active = true
+JOIN fivebyfive.models m ON m.id = av.base_model_id
+JOIN fivebyfive.volumes v ON v.model_id = m.id
+GROUP BY a.id, a.display_id, a.asset_name, s.site_name, s.address_state
+ORDER BY oldest_equipment_date ASC
 LIMIT 200;
 """
 
@@ -670,6 +714,17 @@ if question := st.chat_input("Ask a question about your data..."):
                     pd.DataFrame(rows, columns=columns),
                     use_container_width=True,
                 )
+
+        # Coverage gap questions: show a map of all tower locations
+        q_lower = question.lower()
+        if any(kw in q_lower for kw in COVERAGE_GAP_KEYWORDS):
+            map_cols, map_rows, map_err = run_sql(COVERAGE_GAP_SQL)
+            if not map_err and map_rows:
+                map_df = pd.DataFrame(map_rows, columns=map_cols)
+                map_df = map_df.rename(columns={"latitude": "lat", "longitude": "lon"})
+                with st.expander(f"Tower locations map ({len(map_df)} towers)", expanded=True):
+                    st.caption("Each point is a tower. Sparse areas indicate potential coverage gaps.")
+                    st.map(map_df[["lat", "lon"]])
 
         st.session_state.messages.append({
             "role": "assistant",

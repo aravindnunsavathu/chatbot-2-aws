@@ -9,6 +9,7 @@ views:
           - revision_type
           - design_state
           - created_on
+          - last_edited_on
           - count
 
       - join_path: Revisions.AssetVersions
@@ -17,6 +18,7 @@ views:
           - capture_date
           - active
           - project_name
+          - asset_count
 
       - join_path: Revisions.AssetVersions.Assets
         prefix: true

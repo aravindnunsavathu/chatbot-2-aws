@@ -17,6 +17,8 @@ views:
           - downtilt
           - roll
           - count
+          - min_volume_created_on
+          - total_weight_kg
 
       - join_path: Volumes.AssetVersions
         prefix: true
@@ -25,6 +27,10 @@ views:
           - processing_status
           - active
           - project_name
+          - structure_design_capacity
+          - structure_design_height
+          - structure_height
+          - height
 
       - join_path: Volumes.AssetVersions.Assets
         prefix: true

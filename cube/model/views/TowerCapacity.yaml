@@ -1,0 +1,54 @@
+views:
+  - name: TowerCapacity
+    description: "Structural capacity utilization per tower. Combines the structure's design capacity (from asset versions) with the total weight of installed equipment (from volumes + physical component catalog). Use for questions about available space, towers near capacity, towers under-utilized, and where equipment can be added."
+
+    cubes:
+      - join_path: AssetVersions
+        includes:
+          - id
+          - structure_design_capacity
+          - structure_design_height
+          - structure_height
+          - height
+          - active
+          - total_rad_count
+
+      - join_path: AssetVersions.Assets
+        prefix: true
+        includes:
+          - id
+          - display_id
+          - asset_name
+          - asset_type
+          - structure_type
+          - latitude
+          - longitude
+
+      - join_path: AssetVersions.Assets.Sites
+        prefix: true
+        includes:
+          - display_id
+          - site_name
+          - address_state
+          - address_region
+          - address_zip
+
+      - join_path: AssetVersions.Models
+        prefix: false
+        includes: []
+
+      - join_path: AssetVersions.Models.Volumes
+        prefix: true
+        includes:
+          - count
+          - total_weight_kg
+          - installation_status
+          - volume_type
+
+      - join_path: AssetVersions.Models.Volumes.PhysicalComponents
+        prefix: true
+        includes:
+          - manufacturer
+          - model_identifier
+          - category
+          - weight_kg
