@@ -697,6 +697,66 @@ Digests must match. If they don't, rebuild with `buildx` and re-run `sudo /opt/s
 
 ---
 
+## Phase 15 — Question support: capacity, available space, design states, approval dwell time
+
+### New SQL few-shot examples added to app.py
+
+| Example | Question type |
+|---|---|
+| Ex 6 | Towers at <X% capacity (HAVING filter on weight/design_capacity ratio) |
+| Ex 7 | Available space per tower (available_capacity_kg = design_capacity - installed weight, no threshold) |
+| Ex 8 | Towers with pending design simulations (DRAFT state, count distinct assets) |
+| Ex 9 | Average days from creation to approval (CONFIRMED state, date arithmetic) |
+| Ex 11 | City-level filtering via ILIKE on site_name/address_region (no city column in sites) |
+| Ex 12 | Towers with oldest equipment (MIN(volumes.created_on)) |
+
+### Discovery: actual design_state values differ from documentation
+
+The Revisions cube description said `"e.g. draft, submitted, approved"` but the actual values in the database are:
+- `DRAFT` — revision in progress / pending
+- `CONFIRMED` — approved / complete
+- `LUMEA_OUT_OF_SYNC` — external sync issue
+
+Updated `design_state` dimension description in `Revisions.yaml` to show actual values. Added `avg_days_to_confirmation` measure (CASE WHEN CONFIRMED, type: avg) so approval dwell time can be queried via Cube.
+
+### Issue: Cube fan-out join — TowerCapacity capacity % queries failed
+
+**Error:** `'PhysicalComponents_total_weight_kg' not found for path 'TowerCapacity.PhysicalComponents_total_weight_kg'`
+
+**Cause:** Cube cannot join from `Volumes` to both `PhysicalComponents` and `AssetVersions` in a single query (fan-out from one root to two leaf cubes). The `TowerCapacity` view depended on this.
+
+**Fix:** Updated `TowerCapacity` description to exclude ratio/percentage questions. Capacity utilisation queries now route to the direct SQL path using the new few-shot examples.
+
+### Issue: Cube join path — DesignRevisions "pending simulation" queries failed
+
+**Error:** `Can't find join path to join 'Revisions,AssetVersions', 'Revisions,AssetVersions,Assets', 'Revisions'`
+
+**Cause:** Same reverse-join limitation as the Volumes case. Revisions joins to Models (many_to_one), and AssetVersions joins to Models (many_to_one), but Cube cannot auto-traverse the reverse direction (`Models → AssetVersions`) from the Revisions side.
+
+**Fix:** Added a direct `AssetVersions` join to `Revisions.yaml`:
+```yaml
+- name: AssetVersions
+  sql: "{AssetVersions}.base_model_id = {TABLE}.model_id"
+  relationship: many_to_one
+```
+This is the same pattern used to fix `Volumes.yaml`. Commit: `dfa6f68`.
+
+### Recurring pattern: Cube reverse join limitation
+
+Any time a cube A and cube B both join to a common cube C (many_to_one), Cube cannot traverse from A to B via C without an explicit direct join. Fix is always the same:
+
+```yaml
+# In A.yaml
+joins:
+  - name: B
+    sql: "{B}.foreign_key = {TABLE}.local_key"
+    relationship: many_to_one
+```
+
+Cubes fixed so far: `Volumes → AssetVersions`, `Revisions → AssetVersions`.
+
+---
+
 ## Important lessons learned
 
 1. **`docker restart` does not re-read `--env-file`** — must run `/opt/start_chatbot.sh` to pick up env changes
@@ -716,3 +776,6 @@ Digests must match. If they don't, rebuild with `buildx` and re-run `sudo /opt/s
 15. **`git pull` in `start_all.sh` can miss files if the commit was in-flight** — SSH in and pull manually if new files are missing on EC2
 16. **`aws ssm send-command` is async** — use `sudo /opt/start_all.sh` over SSH directly for real-time output and confirmation
 17. **`docker build --platform linux/amd64` doesn't reliably cross-compile on Apple Silicon** — always use `docker buildx build --platform linux/amd64 --push` instead
+18. **Cube cannot traverse reverse joins (A → C ← B)** — when cubes A and B both join to a common cube C, Cube cannot auto-traverse from A to B via C; add a direct explicit join `{B}.foreign_key = {TABLE}.local_key` in A's joins section
+19. **Actual `design_state` values in DB are uppercase** — `DRAFT` (pending/in-progress), `CONFIRMED` (approved/complete), `LUMEA_OUT_OF_SYNC`; documentation said lowercase but the real values differ
+20. **Cube fan-out (two leaf cubes from one root in one query) always fails** — if a view requires simultaneous joins to two separate leaf cubes (e.g., PhysicalComponents for weight AND AssetVersions for capacity), route to direct SQL; Cube cannot handle this combination
