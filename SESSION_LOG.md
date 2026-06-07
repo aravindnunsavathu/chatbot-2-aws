@@ -590,6 +590,22 @@ Tagged as `v1.2.0`.
 
 ---
 
+## Phase 13 — README redeploy guide completed
+
+Updated `README.md` to include the full 7-step post-destroy runbook, matching the standard runbook documented in this SESSION_LOG. Previously the README only had a 4-step deploy flow that skipped the database restore entirely.
+
+Changes made:
+- Added **"Redeploying after terraform destroy"** section with all 7 steps
+- Step 4: enable pgvector on RDS via SSH (required before restore)
+- Step 5: restore from `~/Downloads/fivebyfive_dump.dump` via SSH tunnel + `pg_restore`
+- Step 6: drop stale 768d embedding columns + re-embed with Titan v2 (1024d)
+- Added data-loss warning to the "Tearing down" section
+- Updated Step 4 heading from "(one-time)" to "(once per fresh RDS instance)"
+
+Commits: `49cf60b`, `d7e37ee` on `main`.
+
+---
+
 ## Important lessons learned
 
 1. **`docker restart` does not re-read `--env-file`** — must run `/opt/start_chatbot.sh` to pick up env changes
