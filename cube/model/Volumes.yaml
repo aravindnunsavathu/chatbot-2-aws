@@ -13,6 +13,9 @@ cubes:
       - name: Measurements
         sql: "{TABLE}.parent_measurement_id = {Measurements}.id"
         relationship: many_to_one
+      - name: AssetVersions
+        sql: "{AssetVersions}.base_model_id = {TABLE}.model_id"
+        relationship: many_to_one
       - name: PhysicalComponents
         sql: "{TABLE}.physical_component_id = {PhysicalComponents}.id"
         relationship: many_to_one
