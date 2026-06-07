@@ -100,7 +100,7 @@ terraform output app_url
 
 > **Note:** SSM agent takes ~2 minutes to become available after the instance starts. If the command fails, wait a moment and try again.
 
-### Step 4 — populate pgvector embeddings (one-time)
+### Step 4 — populate pgvector embeddings (once per fresh RDS instance)
 
 Run `setup_vectors.py` inside the container on EC2 via SSM (no SSH or VPN needed):
 
@@ -142,6 +142,37 @@ terraform -chdir=terraform output -raw step_2_deploy_ec2 | bash
 cd terraform
 terraform destroy
 ```
+
+> **Warning:** `terraform destroy` permanently deletes all AWS resources — including the RDS database and all its data. The ECR image is also removed. To bring the app back, follow the steps below.
+
+---
+
+## Redeploying after `terraform destroy`
+
+Run these commands from the `chatbot-2-aws` project root in order:
+
+```bash
+# 1 — re-provision all infrastructure
+cd terraform && terraform apply && cd ..
+```
+
+Wait ~5 minutes for RDS to become available and ~2 minutes for the SSM agent on EC2, then:
+
+```bash
+# 2 — rebuild and push the Docker image (SSM agent needs ~2 min after apply)
+terraform -chdir=terraform output -raw step_1_push_image | bash
+
+# 3 — start the app on EC2
+terraform -chdir=terraform output -raw step_2_deploy_ec2 | bash
+
+# 4 — re-run vector setup (RDS data was destroyed, so this is required again)
+terraform -chdir=terraform output -raw step_3_setup_vectors | bash
+
+# Check the URL
+terraform -chdir=terraform output app_url
+```
+
+> **Note:** If step 3 returns an SSM error, the agent is still starting. Wait 30 seconds and retry.
 
 ---
 
