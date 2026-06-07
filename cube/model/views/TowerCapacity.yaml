@@ -1,6 +1,6 @@
 views:
   - name: TowerCapacity
-    description: "Structural capacity utilization per tower. Combines the structure's design capacity (from asset versions) with the total weight of installed equipment (from volumes + physical component catalog). Use for questions about available space, towers near capacity, towers under-utilized, and where equipment can be added."
+    description: "Equipment inventory and structural dimensions per tower. Use for browsing installed equipment by site, filtering by volume type or installation status, and looking up structure heights. Do NOT use for capacity percentage or utilisation ratio calculations — route those to direct SQL instead."
 
     cubes:
       - join_path: Volumes

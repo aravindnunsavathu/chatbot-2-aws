@@ -124,7 +124,28 @@ GROUP BY c.id, c.display_name
 ORDER BY version_count DESC
 LIMIT 200;
 
--- Example 6: city-level filtering — sites have no city column, match on site_name and address_region
+-- Example 6: capacity utilisation — weight of installed equipment vs structural design capacity
+Q: How many towers are at less than 30% capacity?
+SQL:
+SELECT a.display_id, a.asset_name, s.site_name, s.address_state,
+       av.structure_design_capacity,
+       COALESCE(SUM(pc.weight_kg), 0) AS total_installed_weight_kg,
+       ROUND(COALESCE(SUM(pc.weight_kg), 0) / NULLIF(av.structure_design_capacity, 0) * 100, 1) AS capacity_pct
+FROM fivebyfive.asset_versions av
+JOIN fivebyfive.assets a ON a.id = av.asset_id
+JOIN fivebyfive.sites s ON s.id = a.site_id
+JOIN fivebyfive.models m ON m.id = av.base_model_id
+LEFT JOIN fivebyfive.volumes v ON v.model_id = m.id AND v.installation_status = 'installed'
+LEFT JOIN fivebyfive.physical_components pc ON pc.id = v.physical_component_id
+WHERE av.active = true
+  AND av.structure_design_capacity IS NOT NULL
+  AND av.structure_design_capacity > 0
+GROUP BY a.id, a.display_id, a.asset_name, s.site_name, s.address_state, av.structure_design_capacity
+HAVING COALESCE(SUM(pc.weight_kg), 0) / av.structure_design_capacity < 0.30
+ORDER BY capacity_pct ASC
+LIMIT 200;
+
+-- Example 7: city-level filtering — sites have no city column, match on site_name and address_region
 Q: Which towers in Durham, NC could fit a new antenna?
 SQL:
 SELECT a.display_id, a.asset_name, s.site_name, s.address_state,
@@ -142,7 +163,7 @@ GROUP BY a.id, a.display_id, a.asset_name, s.site_name, s.address_state,
 ORDER BY current_volume_count ASC
 LIMIT 200;
 
--- Example 7: oldest equipment — order towers by earliest volume placement date
+-- Example 8: oldest equipment — order towers by earliest volume placement date
 Q: Which towers have the oldest equipment?
 SQL:
 SELECT a.display_id, a.asset_name, s.site_name, s.address_state,
