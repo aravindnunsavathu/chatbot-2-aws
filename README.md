@@ -149,30 +149,104 @@ terraform destroy
 
 ## Redeploying after `terraform destroy`
 
-Run these commands from the `chatbot-2-aws` project root in order:
+`terraform destroy` wipes RDS (all data gone), ECR, and EC2. Run these steps in order from the `chatbot-2-aws` project root.
+
+### Redeploy step 1 — provision infrastructure
 
 ```bash
-# 1 — re-provision all infrastructure
 cd terraform && terraform apply && cd ..
 ```
 
-Wait ~5 minutes for RDS to become available and ~2 minutes for the SSM agent on EC2, then:
+Wait ~5 minutes for RDS to start and ~2 minutes for the SSM agent on EC2.
+
+### Redeploy step 2 — build and push Docker image
 
 ```bash
-# 2 — rebuild and push the Docker image (SSM agent needs ~2 min after apply)
 terraform -chdir=terraform output -raw step_1_push_image | bash
-
-# 3 — start the app on EC2
-terraform -chdir=terraform output -raw step_2_deploy_ec2 | bash
-
-# 4 — re-run vector setup (RDS data was destroyed, so this is required again)
-terraform -chdir=terraform output -raw step_3_setup_vectors | bash
-
-# Check the URL
-terraform -chdir=terraform output app_url
 ```
 
-> **Note:** If step 3 returns an SSM error, the agent is still starting. Wait 30 seconds and retry.
+### Redeploy step 3 — start the app on EC2
+
+```bash
+terraform -chdir=terraform output -raw step_2_deploy_ec2 | bash
+```
+
+> If this returns an SSM error, the agent is still starting. Wait 30 seconds and retry.
+
+### Redeploy step 4 — enable pgvector on RDS (must happen before restore)
+
+SSH into EC2, then run as root:
+
+```bash
+ssh -i ~/Downloads/fivebyfive-key.pem \
+  ec2-user@$(terraform -chdir=terraform output -raw ec2_public_ip)
+```
+
+Inside the SSH session:
+
+```bash
+sudo su -
+PGPASSWORD=$(grep DB_PASSWORD /opt/chatbot.env | cut -d= -f2) \
+PGSSLMODE=require \
+psql -h $(grep DB_HOST /opt/chatbot.env | cut -d= -f2) \
+  -U fivebyfive_admin -d fivebyfiveqa \
+  -c "CREATE EXTENSION IF NOT EXISTS vector SCHEMA public;"
+```
+
+### Redeploy step 5 — restore the database from dump
+
+You need the dump file at `~/Downloads/fivebyfive_dump.dump` (created with `pg_dump -Fc`).
+
+Open **two terminals** from the `chatbot-2-aws` directory:
+
+**Terminal 1 — SSH tunnel (keep running):**
+
+```bash
+ssh -i ~/Downloads/fivebyfive-key.pem \
+  -L 5434:$(terraform -chdir=terraform output -raw db_endpoint):5432 \
+  ec2-user@$(terraform -chdir=terraform output -raw ec2_public_ip) \
+  -N
+```
+
+**Terminal 2 — restore:**
+
+```bash
+export PGPASSWORD=$(terraform -chdir=terraform output -raw db_password)
+PGSSLMODE=require pg_restore \
+  -h localhost -p 5434 \
+  -U fivebyfive_admin \
+  -d fivebyfiveqa \
+  --no-owner \
+  ~/Downloads/fivebyfive_dump.dump
+```
+
+### Redeploy step 6 — set up Bedrock vector embeddings
+
+The restored dump may contain stale 768d embedding columns from the local setup. Drop them first, then re-embed with Titan v2 (1024d):
+
+SSH into EC2 as root, then:
+
+```bash
+# Drop any old embedding columns from the local setup
+PGPASSWORD=$(grep DB_PASSWORD /opt/chatbot.env | cut -d= -f2) \
+PGSSLMODE=require \
+psql -h $(grep DB_HOST /opt/chatbot.env | cut -d= -f2) \
+  -U fivebyfive_admin -d fivebyfiveqa -c "
+ALTER TABLE fivebyfive.physical_components DROP COLUMN IF EXISTS embedding;
+ALTER TABLE fivebyfive.asset_version_notes DROP COLUMN IF EXISTS embedding;
+"
+
+# Re-embed with Titan v2 (1024d) and build HNSW indexes
+docker run --rm --env-file /opt/chatbot.env \
+  --entrypoint python3 \
+  $(cat /opt/ecr_url):latest setup_vectors.py
+```
+
+### Redeploy step 7 — open the app
+
+```bash
+terraform -chdir=terraform output app_url
+```
 
 ---
 
