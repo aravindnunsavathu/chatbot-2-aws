@@ -28,7 +28,7 @@ resource "aws_db_subnet_group" "main" {
 resource "aws_db_instance" "main" {
   identifier     = "${var.project_name}-postgres"
   engine         = "postgres"
-  engine_version = "16.3"
+  engine_version = "17.4"
 
   # Free tier: db.t3.micro, 20 GB gp2, no multi-AZ
   instance_class    = var.db_instance_class
