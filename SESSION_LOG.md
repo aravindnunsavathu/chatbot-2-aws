@@ -757,6 +757,48 @@ Cubes fixed so far: `Volumes → AssetVersions`, `Revisions → AssetVersions`.
 
 ---
 
+## Phase 16 — Accelerator build and deployment (v1.0.0)
+
+### What was built
+
+Extracted `chatbot-2-aws` into a reusable accelerator at `https://github.com/aravindnunsavathu/chatbot-accelerator-1`.
+
+**Generic framework (no customer-specific code):**
+- `app.py` — reads all config from `CUSTOMER_CONFIG_DIR` env var; no hardcoded schema names, table lists, or SQL examples
+- `setup_vectors.py` — config-driven; reads which tables/columns to embed from `config.json`
+- `onboard.py` — new onboarding tool; introspects a customer's DB schema, uses LLM to generate table descriptions, auto-detects categorical columns, outputs a ready-to-use customer config directory
+- Terraform — `project_name`, `db_name`, `db_username` are required variables (no defaults); two new variables: `customer_config_dir` and `github_repo_url`
+
+**Customer config layer (`customers/fivebyfive/`):**
+- `config.json` — schema name, categorical columns, vector tables, keyword routes, UI branding
+- `metadata.json` — 5x5 table schema (copied from `fivebyfive_metadata.json`)
+- `few_shot_examples.sql` — all 12 SQL examples
+- `cube/` — all 58 cube definitions + 8 views
+
+### Deployment issues and fixes
+
+| Issue | Fix |
+|---|---|
+| SSM SendCommand failed: instance not connected | Instance still booting — wait or use EC2 Instance Connect |
+| `git clone` failed in cloud-init: "could not read Username" | Set `GIT_TERMINAL_PROMPT=0` before git clone in `user_data.sh` |
+| `git clone` still failed: "terminal prompts disabled" | Repo was private — made it public on GitHub |
+| Missing `terraform.tfvars` — required variables not set | Created `terraform/terraform.tfvars` with 5x5 values |
+| SSH host key warning (same IP, new instance) | `ssh-keygen -R <ip>` to clear stale entry |
+| No SSH key on instance, SSM not registering | Used EC2 Instance Connect (`send-ssh-public-key`) for tunnel |
+| `pg_restore` failed: unrecognized parameter `transaction_timeout` | pg_dump was from PG 17, RDS was PG 16; filtered with `grep -v transaction_timeout`; upgraded RDS to 17.4 |
+| `step_3_setup_vectors` SSM failed | Ran `setup_vectors.py` locally through the open SSH tunnel; boto3 uses local AWS credentials for Bedrock |
+
+### Key architectural insight
+
+The customer config (metadata, few-shot examples) is baked into the Docker image at build time (`COPY . .`). Cube YAML files are mounted from the EC2 filesystem at runtime (pulled from git). This means:
+- Updating few-shot examples or metadata → rebuild and push Docker image
+- Updating Cube views → `git pull` on EC2 and restart Cube container
+
+### Repo tags
+- `chatbot-accelerator-1` tagged `v1.0.0` — first working deployment with fivebyfive as reference customer
+
+---
+
 ## Important lessons learned
 
 1. **`docker restart` does not re-read `--env-file`** — must run `/opt/start_chatbot.sh` to pick up env changes
